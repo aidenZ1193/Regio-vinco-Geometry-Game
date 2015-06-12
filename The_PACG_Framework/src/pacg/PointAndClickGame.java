@@ -9,6 +9,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -163,7 +164,9 @@ public abstract class PointAndClickGame {
 	ImageView view = createImageView(img, 0, 0);
 	Button button = new Button();
 	pane.getChildren().add(button);
-	button.translateXProperty().setValue(x);
+                    button.setBackground(Background.EMPTY);
+                   
+	button.translateXProperty().setValue(x-13);
 	button.translateYProperty().setValue(y);
 	button.setGraphic(view);
 	guiButtons.put(type, button);
@@ -260,8 +263,10 @@ public abstract class PointAndClickGame {
 	window.setTitle(name);
 
 	// NOTE THAT THE WINDOW WILL BE RESIZED LATER
-	window.setMaximized(true);
-	window.setResizable(false);
+                    // I changd the para to false
+	window.setMaximized(false);
+                   	window.setResizable(false);
+                    
     }
 
     /**
@@ -280,7 +285,6 @@ public abstract class PointAndClickGame {
 	// GUI CONTROLS ARE SETUP BY THE GAME DEVELOPER
 	// USING THIS FRAMEWORK
 	initGUIControls();
-
 	// ULTIMATELY, EVERYTHING SHOULD BE INSIDE THE CANVAS
 	scene = new Scene(stackPane, data.getGameWidth(), data.getGameHeight());
 	window.setScene(scene);
