@@ -2,6 +2,7 @@ package regio_vinco;
 
 import audio_manager.AudioManager;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
@@ -110,7 +111,8 @@ public class RegioVincoGame extends PointAndClickGame {
 	addGUIImage(guiLayer, TITLE_TYPE, loadImage(TITLE_FILE_PATH), TITLE_X, TITLE_Y);
 	addGUIButton(guiLayer, START_TYPE, loadImage(START_BUTTON_FILE_PATH), START_X, START_Y);
 	addGUIButton(guiLayer, EXIT_TYPE, loadImage(EXIT_BUTTON_FILE_PATH), EXIT_X, EXIT_Y);
-	
+	Label la = new Label();
+                    
 	// NOTE THAT THE MAP IS ALSO AN IMAGE, BUT
 	// WE'LL LOAD THAT WHEN A GAME STARTS, SINCE
 	// WE'LL BE CHANGING THE PIXELS EACH TIME
@@ -209,7 +211,17 @@ public class RegioVincoGame extends PointAndClickGame {
 	Image tempMapImage = loadImage(AFG_MAP_FILE_PATH);
 	PixelReader pixelReader = tempMapImage.getPixelReader();
 	WritableImage mapImage = new WritableImage(pixelReader, (int) tempMapImage.getWidth(), (int) tempMapImage.getHeight());
-	ImageView mapView = guiImages.get(MAP_TYPE);
+	
+                    for(int i = 0; i<mapImage.getWidth();i++){
+                        for(int j = 0; j<mapImage.getHeight();j++){
+                            Color c = pixelReader.getColor(i, j);
+                            Color c2 = Color.rgb(220, 110, 0);
+                            if(c.equals(c2))
+                                mapImage.getPixelWriter().setColor(i, j,Color.BLACK);
+                        }
+                    }
+                    
+                    ImageView mapView = guiImages.get(MAP_TYPE);
 	mapView.setImage(mapImage);
 	int numSubRegions = ((RegioVincoDataModel) data).getRegionsFound() + ((RegioVincoDataModel) data).getRegionsNotFound();
 	this.boundaryTop = -(numSubRegions * 50);

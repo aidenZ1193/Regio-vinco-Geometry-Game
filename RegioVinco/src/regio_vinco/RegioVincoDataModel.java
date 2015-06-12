@@ -257,6 +257,15 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	// REST THE MOVABLE TEXT
 	Pane gameLayer = ((RegioVincoGame)game).getGameLayer();
 	gameLayer.getChildren().clear();
+        // where I add the header
+                    Text node = new Text(regionName+" "+subRegionsType);
+                    gameLayer.getChildren().add(node);
+                    MovableText re = new MovableText(node);
+                    re.getText().setFill(makeColor(200,125,122));
+                    node.setLayoutX(STACK_X);
+                    node.setLayoutY(200);
+                   
+                    
 	for (Color c : colorToSubRegionMappings.keySet()) {
 	    String subRegion = colorToSubRegionMappings.get(c);
 	    subRegionToColorMappings.put(subRegion, c);
@@ -274,7 +283,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	// NOW FIX THEIR Y LOCATIONS
 	for (MovableText mT : subRegionStack) {
 	    int tY = y + yInc;
-	    mT.getText().setY(tY);
+	    mT.getText().setLayoutY(tY);
 	    yInc -= 50;
 	}
 
