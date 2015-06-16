@@ -2,6 +2,7 @@ package pacg;
 
 import java.util.TreeMap;
 import java.util.concurrent.locks.ReentrantLock;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -164,9 +165,10 @@ public abstract class PointAndClickGame {
 	ImageView view = createImageView(img, 0, 0);
 	Button button = new Button();
 	pane.getChildren().add(button);
-                    button.setBackground(Background.EMPTY);
-                   
-	button.translateXProperty().setValue(x-13);
+                  //  button.setBackground(Background.EMPTY);
+                   button.setStyle("-fx-background-color: black");
+                   button.setPadding(new Insets(0,0,0,0));
+	button.translateXProperty().setValue(x);
 	button.translateYProperty().setValue(y);
 	button.setGraphic(view);
 	guiButtons.put(type, button);
