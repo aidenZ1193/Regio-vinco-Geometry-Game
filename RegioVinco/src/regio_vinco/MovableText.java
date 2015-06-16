@@ -1,5 +1,7 @@
 package regio_vinco;
 
+import javafx.scene.control.Label;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
 /**
@@ -13,6 +15,7 @@ public class MovableText {
     // USED FOR MANAGING NODE MOVEMENT
     protected double[] velocity = new double[2];
     protected double[] acceleration = new double[2];
+    private Label lab = new Label();
 
     /**
      * Constructor for initializing a GameNode, note that the provided
@@ -28,6 +31,10 @@ public class MovableText {
     
     public Text getText() {
 	return text;
+    }
+    
+    public Label getLabel(){
+        return lab;
     }
     
     public void setText(Text initText) {
@@ -61,11 +68,12 @@ public class MovableText {
      */
     public void update(double percentage) {
 	// UPDATE POSITION
-	double x = text.translateXProperty().doubleValue();
-	text.translateXProperty().setValue(x + (velocity[0] * percentage));
-	double y = text.translateYProperty().doubleValue();
-	text.translateYProperty().setValue(x + (velocity[1] * percentage));
-	
+	double x = lab.translateXProperty().doubleValue();
+	lab.translateXProperty().setValue(x + (velocity[0] * percentage));
+	double y = lab.translateYProperty().doubleValue();
+	lab.translateYProperty().setValue(y + (velocity[1] * percentage));
+	//rec.setX(x + (velocity[0] * percentage));
+                    //rec.setY(x + (velocity[1] * percentage));
 	// UPDATE VELOCITY
 	velocity[0] += (acceleration[0] * percentage);
 	velocity[1] += (acceleration[1] * percentage);

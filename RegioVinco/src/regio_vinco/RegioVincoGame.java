@@ -9,6 +9,9 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import pacg.PointAndClickGame;
 import static regio_vinco.RegioVinco.*;
@@ -31,7 +34,9 @@ public class RegioVincoGame extends PointAndClickGame {
     Pane backgroundLayer;
     Pane gameLayer;
     Pane guiLayer;
-
+    Label timer ;
+    long start;
+ //   RegioVincoDataModel dataModel = new RegioVincoDataModel();
     /**
      * Get the game setup.
      */
@@ -47,7 +52,13 @@ public class RegioVincoGame extends PointAndClickGame {
     public Pane getGameLayer() {
 	return gameLayer;
     }
+    public Pane getGuiLayer(){
+                    return guiLayer;
+    }
 
+    public Pane getBackgroundLayer(){
+                     return backgroundLayer;
+    }
     /**
      * Initializes audio for the game.
      */
@@ -96,22 +107,50 @@ public class RegioVincoGame extends PointAndClickGame {
     public void initGUIControls() {
 	// LOAD THE GUI IMAGES, WHICH INCLUDES THE BUTTONS
 	// THESE WILL BE ON SCREEN AT ALL TIMES
+                   // data.setGameDimensions(GAME_WIDTH, GAME_HEIGHT);
+                    start = System.currentTimeMillis();
 	backgroundLayer = new Pane();
 	addStackPaneLayer(backgroundLayer);
 	addGUIImage(backgroundLayer, BACKGROUND_TYPE, loadImage(BACKGROUND_FILE_PATH), BACKGROUND_X, BACKGROUND_Y);
 	
-	
+//                    timer = new Label();
+//                    Label regionFound = new Label();
+//                    Label regionNotFound = new Label();
+//                    
+//                    timer.setLayoutX(20);
+//                    timer.setLayoutY(650);
+//                    Text node1 = new Text(((RegioVincoDataModel)data).getSecondsAsTimeText(System.currentTimeMillis()-start));
+//	node1.setFill(Color.ORANGERED);
+//                    node1.setFont(Font.font("Book Antiqua",FontWeight.BOLD, 26));
+//                    timer.setGraphic(node1);
+//                                        
+//                    regionFound.setLayoutX(200);
+//                    regionFound.setLayoutY(650);
+//                    Text node2 = new Text(String.valueOf(((RegioVincoDataModel)data).getRegionsFound()));
+//                    node2.setFill(Color.ORANGERED);
+//                    node2.setFont(Font.font("Book Antiqua",FontWeight.BOLD, 26));
+//                    regionFound.setGraphic(node2);
+//                    
+//                    regionNotFound.setLayoutX(300);
+//                    regionNotFound.setLayoutY(650);
+//                    Text node3 = new Text(String.valueOf(((RegioVincoDataModel)data).getRegionsNotFound()));
+//                    node3.setFill(Color.ORANGERED);
+//                    node3.setFont(Font.font("Book Antiqua",FontWeight.BOLD, 26));
+//                    regionNotFound.setGraphic(node3);
+                    
+                                     
 	// THEN THE GAME LAYER
 	gameLayer = new Pane();
 	addStackPaneLayer(gameLayer);
 	
 	// THEN THE GUI LAYER
 	guiLayer = new Pane();
+
 	addStackPaneLayer(guiLayer);
 	addGUIImage(guiLayer, TITLE_TYPE, loadImage(TITLE_FILE_PATH), TITLE_X, TITLE_Y);
 	addGUIButton(guiLayer, START_TYPE, loadImage(START_BUTTON_FILE_PATH), START_X, START_Y);
 	addGUIButton(guiLayer, EXIT_TYPE, loadImage(EXIT_BUTTON_FILE_PATH), EXIT_X, EXIT_Y);
-	Label la = new Label();
+	//Label la = new Label();
                     
 	// NOTE THAT THE MAP IS ALSO AN IMAGE, BUT
 	// WE'LL LOAD THAT WHEN A GAME STARTS, SINCE
@@ -123,7 +162,9 @@ public class RegioVincoGame extends PointAndClickGame {
 	mapView.setY(MAP_Y);
 	guiImages.put(MAP_TYPE, mapView);
 	guiLayer.getChildren().add(mapView);
-
+                    // add timer and the rest of the things down the screen
+                  //  String timer = data.getSecondsAsTimeText(second);
+                    
 	// NOW LOAD THE WIN DISPLAY, WHICH WE'LL ONLY
 	// MAKE VISIBLE AND ENABLED AS NEEDED
 	ImageView winView = addGUIImage(guiLayer, WIN_DISPLAY_TYPE, loadImage(WIN_DISPLAY_FILE_PATH), WIN_X, WIN_Y);

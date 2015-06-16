@@ -6,11 +6,15 @@ import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
+import javafx.scene.control.Label;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import pacg.PointAndClickGame;
 import pacg.PointAndClickGameDataModel;
@@ -25,6 +29,11 @@ import static regio_vinco.RegioVinco.*;
  * @version 1.0
  */
 public class RegioVincoDataModel extends PointAndClickGameDataModel {
+
+    // HELPER METHOD FOR MAKING A COLOR OBJECT
+    public static Color makeColor(int r, int g, int b) {
+        return Color.color(r/255.0, g/255.0, b/255.0);
+    }
     // THIS IS THE MAP IMAGE THAT WE'LL USE
     private WritableImage mapImage;
     private PixelReader mapPixelReader;
@@ -38,6 +47,14 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
     private HashMap<String, ArrayList<int[]>> pixels;
     private LinkedList<String> redSubRegions;
     private LinkedList<MovableText> subRegionStack;
+    
+    private Text timer = new Text();
+    private Text regionFound = new Text();
+    private Text regionNotFound = new Text();
+    private Text wrongGuess = new Text();
+    private int wrong = 0;
+    private long start;
+   // private Font font = new Font("Verdana", Font.BOLD, 12);
 
     /**
      * Default constructor, it initializes all data structures for managing the
@@ -66,6 +83,39 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	    changeSubRegionColorOnMap(game, subRegionName, Color.GREEN);
 	}
 	startTextStackMovingDown();
+    }
+
+    public Text getTimer() {
+        return timer;
+    }
+
+    public long setTimer() {
+         long start = System.currentTimeMillis();
+        return start;
+    }
+
+    public Text getRegionFound() {
+        return regionFound;
+    }
+
+    public void setRegionFound(Text regionFound) {
+        this.regionFound = regionFound;
+    }
+
+    public Text getRegionNotFound() {
+        return regionNotFound;
+    }
+
+    public void setRegionNotFound(Text regionNotFound) {
+        this.regionNotFound = regionNotFound;
+    }
+
+    public Text getWrongGuess() {
+        return wrongGuess;
+    }
+
+    public void setWrongGuess(Text wrongGuess) {
+        this.wrongGuess = wrongGuess;
     }
 
     // ACCESSOR METHODS
@@ -150,8 +200,11 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	    changeSubRegionColorOnMap(game, clickedSubRegion, Color.GREEN);
 
 	    // REMOVE THE BOTTOM ELEMENT FROM THE STACK
+                        Label lla = subRegionStack.peek().getLabel();
+                        game.getGameLayer().getChildren().remove(lla);
 	    subRegionStack.removeFirst();
-
+                       subRegionStack.peek().getLabel().setStyle("-fx-background-color: green");
+                   subRegionStack.peek().getText().setFill(Color.RED);
 	    // AND LET'S CHANGE THE RED ONES BACK TO THEIR PROPER COLORS
 	    for (String s : redSubRegions) {
 		Color subRegionColor = subRegionToColorMappings.get(s);
@@ -174,6 +227,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 		// TURN THE TERRITORY TEMPORARILY RED
 		changeSubRegionColorOnMap(game, clickedSubRegion, Color.RED);
 		redSubRegions.add(clickedSubRegion);
+                                        wrong++;
 	    }
 	}
     }
@@ -205,7 +259,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
      */
     @Override
     public void reset(PointAndClickGame game) {
-
+                   
 	// THIS GAME ONLY PLAYS AFGHANISTAN
 	regionName = "Afghanistan";
 	subRegionsType = "Provinces";
@@ -256,37 +310,75 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 
 	// REST THE MOVABLE TEXT
 	Pane gameLayer = ((RegioVincoGame)game).getGameLayer();
+                   // Pane backgroundLayer = ((RegioVincoGame)game).getBackgroundLayer();
 	gameLayer.getChildren().clear();
         // where I add the header
-                    Text node = new Text(regionName+" "+subRegionsType);
-                    gameLayer.getChildren().add(node);
-                    MovableText re = new MovableText(node);
-                    re.getText().setFill(makeColor(200,125,122));
-                    node.setLayoutX(STACK_X);
-                    node.setLayoutY(200);
+                    Label la = new Label();
+                    la.setPrefSize(290, 50);
                    
+                    la.setLayoutX(STACK_X);
+                    la.setLayoutY(150);
+                    la.setStyle("-fx-background-color: black");
+                   
+                   Pane guiLayer = ((RegioVincoGame)game).getGuiLayer();
+                    Text node = new Text(regionName+" "+subRegionsType);
+                    node.setFont(Font.font("Book Antiqua",FontWeight.BOLD, 28));
+                    node.setFill(Color.YELLOW);
+                     la.setGraphic(node);
+                    guiLayer.getChildren().add(la);
+                    //guiLayer.getChildren().add(node);
+                  //  MovableText re = new MovableText(node);
+                    // need to change the color and size and bold
+                   // re.getText().setFont(Font.font("Book Antiqua",FontWeight.BOLD, 28));
+                   // re.getText().setFill(Color.YELLOW);
+                   // node.setLayoutX(STACK_X);
+                    //node.setLayoutY(180);
+
                     
 	for (Color c : colorToSubRegionMappings.keySet()) {
 	    String subRegion = colorToSubRegionMappings.get(c);
 	    subRegionToColorMappings.put(subRegion, c);
 	    Text textNode = new Text(subRegion);
-	    gameLayer.getChildren().add(textNode);
+            // changed my text font
+                        textNode.setFont(Font.font("BookAntiqua",FontWeight.BOLD,28));
+                       // textNode.setFill(Color.NAVY);    
+                        
+	    //gameLayer.getChildren().add(textNode);
+                       
 	    MovableText subRegionText = new MovableText(textNode);
-	    subRegionText.getText().setFill(REGION_NAME_COLOR);
-	    textNode.setX(STACK_X);
+            
+                        subRegionText.getLabel().setStyle("-fx-background-color: rgb(" + (c.getRed()*255) + "," 
+                                                + (c.getGreen()*255)+","+ (c.getBlue()*255) +")");
+                        subRegionText.getLabel().setLayoutX(STACK_X);
+                        subRegionText.getLabel().setGraphic(textNode);
+                        subRegionText.getLabel().setPrefSize(290, 50);
+                        subRegionText.getLabel().setEffect(null);
+                        //subRegionText.getLabel().setMinWidth(280);
+                        //subRegionText.getLabel().setMinHeight(50);
+                        // color was REGION_NAME_COLOR
+                         gameLayer.getChildren().add(subRegionText.getLabel());
+	    subRegionText.getText().setFill(Color.NAVY);
+	    //textNode.setX(STACK_X);
 	    subRegionStack.add(subRegionText);
+                       
+                       // gameLayer.getChildren().add(r);
 	}
 	Collections.shuffle(subRegionStack);
+                   subRegionStack.peek().getLabel().setStyle("-fx-background-color: green");
+                   subRegionStack.peek().getText().setFill(Color.RED);
 
 	int y = STACK_INIT_Y;
 	int yInc = STACK_INIT_Y_INC;
 	// NOW FIX THEIR Y LOCATIONS
 	for (MovableText mT : subRegionStack) {
+                    // Set a rectangle
+                                            
 	    int tY = y + yInc;
-	    mT.getText().setLayoutY(tY);
+	    //mT.getText().setLayoutY(tY);
+                        mT.getLabel().setLayoutY(tY);
 	    yInc -= 50;
 	}
-
+                   
 	// RELOAD THE MAP
 	((RegioVincoGame) game).reloadMap();
 
@@ -309,7 +401,38 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 		}
 	    }
 	}
-
+            
+        // timer labels and staff
+//                    timer = new Text();
+//                    regionFound = new Text();
+//                    regionNotFound = new Text();
+//                    wrongGuess = new Text();
+                    
+                    timer.setFont(Font.font("BookAntiqua",FontWeight.BOLD,20));
+                    timer.setLayoutX(20);
+                    timer.setLayoutY(650);
+                    timer.setFill(Color.AQUA);
+                    start = System.currentTimeMillis();
+                    
+                    regionFound.setFont(Font.font("BookAntiqua",FontWeight.BOLD,20));
+                    regionFound.setLayoutX(150);
+                    regionFound.setLayoutY(650);
+                    regionFound.setFill(Color.AQUA);
+                    
+                    regionNotFound.setFont(Font.font("BookAntiqua",FontWeight.BOLD,20));
+                    regionNotFound.setLayoutX(420);
+                    regionNotFound.setLayoutY(650);
+                    regionNotFound.setFill(Color.AQUA);
+                    
+                    wrongGuess.setFont(Font.font("BookAntiqua",FontWeight.BOLD,20));
+                    wrongGuess.setLayoutX(620);
+                    wrongGuess.setLayoutY(650);
+                    wrongGuess.setFill(Color.AQUA);
+                    wrong = 0;
+                    guiLayer.getChildren().add(timer);
+                    guiLayer.getChildren().add(regionFound);
+                    guiLayer.getChildren().add(regionNotFound);
+                    guiLayer.getChildren().add(wrongGuess);
 	// RESET THE AUDIO
 	AudioManager audio = ((RegioVincoGame) game).getAudio();
 	audio.stop(AFGHAN_ANTHEM);
@@ -321,16 +444,10 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	beginGame();
     }
    
-    // HELPER METHOD FOR MAKING A COLOR OBJECT
-    public static Color makeColor(int r, int g, int b) {
-	return Color.color(r/255.0, g/255.0, b/255.0);
-    }
-
     // STATE TESTING METHODS
     // UPDATE METHODS
-	// updateAll
-	// updateDebugText
-    
+    // updateAll
+    // updateDebugText
     /**
      * Called each frame, this thread already has a lock on the data. This
      * method updates all the game sprites as needed.
@@ -338,22 +455,29 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
      * @param game the game in progress
      */
     @Override
-    public void updateAll(PointAndClickGame game, double percentage) {
-	for (MovableText mT : subRegionStack) {
-	    mT.update(percentage);
-	}
-	if (!subRegionStack.isEmpty()) {
-	    MovableText bottomOfStack = subRegionStack.get(0);
-	    double bottomY = bottomOfStack.getText().getY();
-	    if (bottomY >= FIRST_REGION_Y_IN_STACK) {
-		double diffY = bottomY - FIRST_REGION_Y_IN_STACK;
-		for (MovableText mT : subRegionStack) {
-		    mT.getText().setY(mT.getText().getX() - diffY);
-		    mT.setVelocityY(0);
-		}
-	    }
-	}
+public void updateAll(PointAndClickGame game, double percentage) {
+    for (MovableText mT : subRegionStack) {
+        mT.update(percentage);
     }
+    if (!subRegionStack.isEmpty()) {
+        MovableText bottomOfStack = subRegionStack.get(0);
+        double bottomY = bottomOfStack.getLabel().getLayoutY()+bottomOfStack.getLabel().getTranslateY();
+        if (bottomY > FIRST_REGION_Y_IN_STACK) {
+            double diffY = bottomY - FIRST_REGION_Y_IN_STACK;
+            for (MovableText mT : subRegionStack) {
+                mT.getText().setY(mT.getText().getY() - diffY);
+                mT.setVelocityY(0);
+            }
+        }
+    }
+    timer.setText(getSecondsAsTimeText(System.currentTimeMillis()/1000-start/1000));
+    regionFound.setText("Regions Found: "+String.valueOf(getRegionsFound()));
+    regionNotFound.setText("Regions Left: "+String.valueOf(getRegionsNotFound()));
+    wrongGuess.setText("Incorrect Guesses: "+wrong);
+    
+  
+    //wrongGuess.setText()
+}
 
     /**
      * Called each frame, this method specifies what debug text to render. Note
@@ -364,7 +488,8 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
      *
      * @return game the active game being played
      */
-    public void updateDebugText(PointAndClickGame game) {
+public void updateDebugText(PointAndClickGame game) {
 	debugText.clear();
     }
+
 }
