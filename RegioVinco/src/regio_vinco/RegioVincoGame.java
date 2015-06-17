@@ -326,31 +326,31 @@ public class RegioVincoGame extends PointAndClickGame {
                         time.setLayoutY(220);//200);
                         time.setText("Game Duration: "+dataModel.getSecondsAsTimeText(endTime/1000-dataModel.getStart()/1000));
                         time.setFill(Color.NAVY);
-                        time.setFont(Font.font("BookAntiqua",FontWeight.BOLD,22));
+                        time.setFont(Font.font("BookAntiqua",FontWeight.BOLD,24));
                         
                         region.setLayoutX(70);//380);
                         region.setLayoutY(180);//200);
                         region.setText("Region: "+dataModel.getRegionName());
                         region.setFill(Color.NAVY);
-                        region.setFont(Font.font("BookAntiqua",FontWeight.BOLD,22));
+                        region.setFont(Font.font("BookAntiqua",FontWeight.BOLD,24));
                         
                         subRegions.setLayoutX(70);//380);
                         subRegions.setLayoutY(300);//200);
                         subRegions.setText("Sub Regions: "+dataModel.getNumberOfSubRegions());
                         subRegions.setFill(Color.NAVY);
-                        subRegions.setFont(Font.font("BookAntiqua",FontWeight.BOLD,20));
+                        subRegions.setFont(Font.font("BookAntiqua",FontWeight.BOLD,24));
                         
                         score.setLayoutX(70);//380);
                         score.setLayoutY(260);//200);
                         score.setText("Score: "+score());
                         score.setFill(Color.NAVY);
-                        score.setFont(Font.font("BookAntiqua",FontWeight.BOLD,20));
+                        score.setFont(Font.font("BookAntiqua",FontWeight.BOLD,24));
                         
                         guesses.setLayoutX(70);//380);
                         guesses.setLayoutY(340);//200);
                         guesses.setText("Incorrect Guesses: "+dataModel.getWrong());
                         guesses.setFill(Color.NAVY);
-                        guesses.setFont(Font.font("BookAntiqua",FontWeight.BOLD,20));
+                        guesses.setFont(Font.font("BookAntiqua",FontWeight.BOLD,24));
                      
     }
    

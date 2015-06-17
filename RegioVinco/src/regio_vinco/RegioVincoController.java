@@ -37,7 +37,10 @@ public class RegioVincoController implements KeyPressHook {
             {    
                 game.beginUsingData();
                 RegioVincoDataModel dataModel = (RegioVincoDataModel)(game.getDataModel());
-                dataModel.removeAllButOneFromeStack(game);      
+                if(dataModel.getRegionsFound()>=33)
+                    return;
+                dataModel.removeAllButOneFromeStack(game);     
+
                // dataModel.setGameState(WIN);
                // dataModel.endGameAsWin();
                 
