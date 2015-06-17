@@ -73,9 +73,9 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	mapPixelReader = mapImage.getPixelReader();
 	mapPixelWriter = mapImage.getPixelWriter();
     }
-
-    public void removeAllButOneFromeStack(RegioVincoGame game) {
-	while (subRegionStack.size() > 1) {
+// I changed the return type to boolean from void
+    public boolean removeAllButOneFromeStack(RegioVincoGame game) {
+	while (subRegionStack.size() >= 1) {
 	    MovableText text = subRegionStack.removeFirst();
 	    String subRegionName = text.getText().getText();
 
@@ -83,6 +83,10 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	    changeSubRegionColorOnMap(game, subRegionName, Color.GREEN);
 	}
 	startTextStackMovingDown();
+        if(subRegionStack.size()==0)
+            return true;
+        else
+            return false;
     }
 
     public Text getTimer() {
@@ -353,9 +357,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                         subRegionText.getLabel().setGraphic(textNode);
                         subRegionText.getLabel().setPrefSize(290, 50);
                         subRegionText.getLabel().setEffect(null);
-                        //subRegionText.getLabel().setMinWidth(280);
-                        //subRegionText.getLabel().setMinHeight(50);
-                        // color was REGION_NAME_COLOR
+                        
                          gameLayer.getChildren().add(subRegionText.getLabel());
 	    subRegionText.getText().setFill(Color.NAVY);
 	    //textNode.setX(STACK_X);
@@ -474,9 +476,7 @@ public void updateAll(PointAndClickGame game, double percentage) {
     regionFound.setText("Regions Found: "+String.valueOf(getRegionsFound()));
     regionNotFound.setText("Regions Left: "+String.valueOf(getRegionsNotFound()));
     wrongGuess.setText("Incorrect Guesses: "+wrong);
-    
-  
-    //wrongGuess.setText()
+
 }
 
     /**

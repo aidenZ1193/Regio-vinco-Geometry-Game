@@ -112,32 +112,7 @@ public class RegioVincoGame extends PointAndClickGame {
 	backgroundLayer = new Pane();
 	addStackPaneLayer(backgroundLayer);
 	addGUIImage(backgroundLayer, BACKGROUND_TYPE, loadImage(BACKGROUND_FILE_PATH), BACKGROUND_X, BACKGROUND_Y);
-	
-//                    timer = new Label();
-//                    Label regionFound = new Label();
-//                    Label regionNotFound = new Label();
-//                    
-//                    timer.setLayoutX(20);
-//                    timer.setLayoutY(650);
-//                    Text node1 = new Text(((RegioVincoDataModel)data).getSecondsAsTimeText(System.currentTimeMillis()-start));
-//	node1.setFill(Color.ORANGERED);
-//                    node1.setFont(Font.font("Book Antiqua",FontWeight.BOLD, 26));
-//                    timer.setGraphic(node1);
-//                                        
-//                    regionFound.setLayoutX(200);
-//                    regionFound.setLayoutY(650);
-//                    Text node2 = new Text(String.valueOf(((RegioVincoDataModel)data).getRegionsFound()));
-//                    node2.setFill(Color.ORANGERED);
-//                    node2.setFont(Font.font("Book Antiqua",FontWeight.BOLD, 26));
-//                    regionFound.setGraphic(node2);
-//                    
-//                    regionNotFound.setLayoutX(300);
-//                    regionNotFound.setLayoutY(650);
-//                    Text node3 = new Text(String.valueOf(((RegioVincoDataModel)data).getRegionsNotFound()));
-//                    node3.setFill(Color.ORANGERED);
-//                    node3.setFont(Font.font("Book Antiqua",FontWeight.BOLD, 26));
-//                    regionNotFound.setGraphic(node3);
-                    
+        
                                      
 	// THEN THE GAME LAYER
 	gameLayer = new Pane();
