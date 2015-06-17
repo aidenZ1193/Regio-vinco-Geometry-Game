@@ -34,9 +34,18 @@ public class RegioVincoGame extends PointAndClickGame {
     Pane backgroundLayer;
     Pane gameLayer;
     Pane guiLayer;
+    Pane labelLayer;
     Label timer ;
+    Long endTime;
     long start;
     
+                    Text time;// = new Text();//dataModel.getTimer();
+                Text region;// = new Text();
+                 Text subRegions;// = new Text();
+                Text guesses;// = new Text();
+                Text score;// = new Text();
+    boolean add = false;
+    boolean end = false;
     boolean isPlayed = false;
  //   RegioVincoDataModel dataModel = new RegioVincoDataModel();
     /**
@@ -146,6 +155,28 @@ public class RegioVincoGame extends PointAndClickGame {
 	// MAKE VISIBLE AND ENABLED AS NEEDED
 	ImageView winView = addGUIImage(guiLayer, WIN_DISPLAY_TYPE, loadImage(WIN_DISPLAY_FILE_PATH), WIN_X, WIN_Y);
 	winView.setVisible(false);
+        
+                    labelLayer = new Pane();
+                    labelLayer.setMinSize(500, 400);
+                    labelLayer.setMaxSize(500, 400);
+                    addStackPaneLayer(labelLayer);
+                    labelLayer.setLayoutX(350);
+                    labelLayer.setLayoutY(200);
+                    labelLayer.setVisible(false);
+                    time = new Text();//dataModel.getTimer();
+                   region = new Text();
+                   subRegions = new Text();
+                   guesses = new Text();
+                   score = new Text();
+                   
+                             labelLayer.getChildren().add(time);
+                             labelLayer.getChildren().add(region);
+                             labelLayer.getChildren().add(subRegions);
+                             labelLayer.getChildren().add(score);
+                             labelLayer.getChildren().add(guesses);
+                             add = true;
+                        
+                //    addLabels();
                     
     }
     
@@ -198,11 +229,15 @@ public class RegioVincoGame extends PointAndClickGame {
 	winView.setVisible(false);
                     ImageView mapView = guiImages.get(MAP_TYPE);
                     mapView.setVisible(true);
+                    labelLayer.setVisible(false);
+                    block(false);
 	// AND RESET ALL GAME DATA
                    // RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
                     //dataModel.setAdded(false);
 	data.reset(this);
                     isPlayed = false;
+                    end = false;
+                    add = false;
                     audio.stop(AFGHAN_ANTHEM);
                     audio.play(TRACKED_SONG, true);
                     
@@ -231,12 +266,20 @@ public class RegioVincoGame extends PointAndClickGame {
                    // System.out.println(data.getGameState());
                    RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
                    
-                   if(dataModel.getRegionsFound() == 34)
-                       data.endGameAsWin();
+                   if(dataModel.getRegionsFound() == 34){
+                       if(!end){
+                            data.endGameAsWin();
+                            endTime = System.currentTimeMillis();
+                            addLabels();
+                            end = true;
+                        }
+                   }
 	if (data.won()) {
 	    ImageView winImage = guiImages.get(WIN_DISPLAY_TYPE);
 	    winImage.setVisible(true);
-                       // gameLayer.setVisible(false);
+                        labelLayer.setVisible(true);
+                        block(true);
+                      // gameLayer.setVisible(false);
                    ImageView mapView = guiImages.get(MAP_TYPE);
                         mapView.setVisible(false);
                         dataModel.getRegionFound().setVisible(false);
@@ -248,18 +291,7 @@ public class RegioVincoGame extends PointAndClickGame {
                         audio.play(AFGHAN_ANTHEM, true);
                        // isPlayed = true;
                         }
-//                        RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
-//                        Text time = dataModel.getTimer();
-//                      //  Text region = new Text(dataModel.getRegionName());
-//                       // Text score = new Text(dataModel.getScore());
-//                       // Text subRegions = new Text(String.valueOf(dataModel.getRegionsFound()));
-//                      //  Text guesses = dataModel.getWrongGuess();
-//                        
-//                        time.setText("Game Duration: "+dataModel.getTimer().getText());
-//                        time.setLayoutX(380);
-//                        time.setLayoutY(200);
-//                        guiLayer.getChildren().add(time);
-	}
+              	}
     }
 
     public void reloadMap() {
@@ -284,4 +316,63 @@ public class RegioVincoGame extends PointAndClickGame {
 	// AND GIVE THE WRITABLE MAP TO THE DATA MODEL
 	((RegioVincoDataModel) data).setMapImage(mapImage);
     }
+    
+    public void addLabels(){
+        RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
+                       
+                        
+                        
+                        time.setLayoutX(70);//380);
+                        time.setLayoutY(220);//200);
+                        time.setText("Game Duration: "+dataModel.getSecondsAsTimeText(endTime/1000-dataModel.getStart()/1000));
+                        time.setFill(Color.NAVY);
+                        time.setFont(Font.font("BookAntiqua",FontWeight.BOLD,22));
+                        
+                        region.setLayoutX(70);//380);
+                        region.setLayoutY(180);//200);
+                        region.setText("Region: "+dataModel.getRegionName());
+                        region.setFill(Color.NAVY);
+                        region.setFont(Font.font("BookAntiqua",FontWeight.BOLD,22));
+                        
+                        subRegions.setLayoutX(70);//380);
+                        subRegions.setLayoutY(300);//200);
+                        subRegions.setText("Sub Regions: "+dataModel.getNumberOfSubRegions());
+                        subRegions.setFill(Color.NAVY);
+                        subRegions.setFont(Font.font("BookAntiqua",FontWeight.BOLD,20));
+                        
+                        score.setLayoutX(70);//380);
+                        score.setLayoutY(260);//200);
+                        score.setText("Score: "+score());
+                        score.setFill(Color.NAVY);
+                        score.setFont(Font.font("BookAntiqua",FontWeight.BOLD,20));
+                        
+                        guesses.setLayoutX(70);//380);
+                        guesses.setLayoutY(340);//200);
+                        guesses.setText("Incorrect Guesses: "+dataModel.getWrong());
+                        guesses.setFill(Color.NAVY);
+                        guesses.setFont(Font.font("BookAntiqua",FontWeight.BOLD,20));
+                     
+    }
+   
+   public String score(){
+       RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
+        int score = 0;
+        score = 10000-(((int)(long)endTime/1000-(int)(long)dataModel.getStart()/1000));
+        score = score-(100*dataModel.getWrong());
+        if(score<0)
+            score = 0;
+        return String.valueOf(score);
+    }
+   
+   public void block(boolean b){
+       Label la = new Label();
+       guiLayer.getChildren().add(la);
+                    la.setPrefSize(290, 50);
+                   
+                    la.setLayoutX(STACK_X);
+                    la.setLayoutY(150);
+                    la.setVisible(b);
+                    la.setStyle("-fx-background-color: black");
+                    
+   }
 }

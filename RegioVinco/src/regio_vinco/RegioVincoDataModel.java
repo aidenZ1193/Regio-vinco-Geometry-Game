@@ -76,22 +76,36 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
     }
 // I changed the return type to boolean from void
     public void removeAllButOneFromeStack(RegioVincoGame game) {
+                    //for(int i = 0; i<subRegionStack.size(); i++){
+                     //   String subRegion = subRegionStack.get(i).getText().getText();
+                        //changeSubRegionColorOnMap()
+                      
 	while (subRegionStack.size() > 1) {
-                         Label lla = subRegionStack.peek().getLabel();
-                        game.getGameLayer().getChildren().remove(lla);
+                         
+                         //Label lla = subRegionStack.peek().getLabel();
+//                        game.getGameLayer().getChildren().remove(lla);
                         
 	    MovableText text = subRegionStack.removeFirst();
+                       game.getGameLayer().getChildren().remove(text.getLabel());
 	    String subRegionName = text.getText().getText();
-                        
-                        subRegionStack.peek().getLabel().setStyle("-fx-background-color: green");
-                        subRegionStack.peek().getText().setFill(Color.RED);
+                                                       
                    
 	    // TURN THE TERRITORY GREEN
 	    changeSubRegionColorOnMap(game, subRegionName, Color.GREEN);
 	}
+                     MovableText text = subRegionStack.peekFirst();
+	    String subRegionName = text.getText().getText();
+                    if(redSubRegions.contains(subRegionName)) 
+                        changeSubRegionColorOnMap(game,subRegionName,getColorMappedToSubRegion(subRegionName));
+                   subRegionStack.peek().getLabel().setStyle("-fx-background-color: green");
+                   subRegionStack.peek().getText().setFill(Color.RED);
 	startTextStackMovingDown();
     }
 
+    public int getWrong(){
+        return wrong;
+        
+    }
     public Text getTimer() {
         return timer;
     }
@@ -121,6 +135,9 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
         return wrongGuess;
     }
 
+    public long getStart(){
+        return start;
+    }
     public void setWrongGuess(Text wrongGuess) {
         this.wrongGuess = wrongGuess;
     }
