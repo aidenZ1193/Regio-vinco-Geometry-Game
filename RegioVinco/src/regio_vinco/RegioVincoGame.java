@@ -36,6 +36,8 @@ public class RegioVincoGame extends PointAndClickGame {
     Pane guiLayer;
     Label timer ;
     long start;
+    
+    boolean isPlayed = false;
  //   RegioVincoDataModel dataModel = new RegioVincoDataModel();
     /**
      * Get the game setup.
@@ -144,6 +146,7 @@ public class RegioVincoGame extends PointAndClickGame {
 	// MAKE VISIBLE AND ENABLED AS NEEDED
 	ImageView winView = addGUIImage(guiLayer, WIN_DISPLAY_TYPE, loadImage(WIN_DISPLAY_FILE_PATH), WIN_X, WIN_Y);
 	winView.setVisible(false);
+                    
     }
     
     // HELPER METHOD FOR LOADING IMAGES
@@ -193,9 +196,17 @@ public class RegioVincoGame extends PointAndClickGame {
 	// IF THE WIN DIALOG IS VISIBLE, MAKE IT INVISIBLE
 	ImageView winView = guiImages.get(WIN_DISPLAY_TYPE);
 	winView.setVisible(false);
-
+                    ImageView mapView = guiImages.get(MAP_TYPE);
+                    mapView.setVisible(true);
 	// AND RESET ALL GAME DATA
+                   // RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
+                    //dataModel.setAdded(false);
 	data.reset(this);
+                    isPlayed = false;
+                    audio.stop(AFGHAN_ANTHEM);
+                    audio.play(TRACKED_SONG, true);
+                    
+                    //audio.play(AFGHAN_ANTHEM, false);
     }
 
     /**
@@ -217,9 +228,37 @@ public class RegioVincoGame extends PointAndClickGame {
     @Override
     public void updateGUI() {
 	// IF THE GAME IS OVER, DISPLAY THE APPROPRIATE RESPONSE
+                   // System.out.println(data.getGameState());
+                   RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
+                   
+                   if(dataModel.getRegionsFound() == 34)
+                       data.endGameAsWin();
 	if (data.won()) {
 	    ImageView winImage = guiImages.get(WIN_DISPLAY_TYPE);
 	    winImage.setVisible(true);
+                       // gameLayer.setVisible(false);
+                   ImageView mapView = guiImages.get(MAP_TYPE);
+                        mapView.setVisible(false);
+                        dataModel.getRegionFound().setVisible(false);
+                        dataModel.getTimer().setVisible(false);
+                        dataModel.getRegionNotFound().setVisible(false);
+                        dataModel.getWrongGuess().setVisible(false);
+                        if(!audio.isPlaying(AFGHAN_ANTHEM)){
+                        //audio.play(TRACKED_SONG, false);
+                        audio.play(AFGHAN_ANTHEM, true);
+                       // isPlayed = true;
+                        }
+//                        RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
+//                        Text time = dataModel.getTimer();
+//                      //  Text region = new Text(dataModel.getRegionName());
+//                       // Text score = new Text(dataModel.getScore());
+//                       // Text subRegions = new Text(String.valueOf(dataModel.getRegionsFound()));
+//                      //  Text guesses = dataModel.getWrongGuess();
+//                        
+//                        time.setText("Game Duration: "+dataModel.getTimer().getText());
+//                        time.setLayoutX(380);
+//                        time.setLayoutY(200);
+//                        guiLayer.getChildren().add(time);
 	}
     }
 

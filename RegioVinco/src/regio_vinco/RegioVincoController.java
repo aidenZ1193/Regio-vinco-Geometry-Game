@@ -29,6 +29,7 @@ public class RegioVincoController implements KeyPressHook {
     @Override
     public void processKeyPressHook(KeyEvent ke)
     {
+        //boolean callWin = false;
         KeyCode keyCode = ke.getCode();
         if (keyCode == KeyCode.C)
         {
@@ -36,11 +37,17 @@ public class RegioVincoController implements KeyPressHook {
             {    
                 game.beginUsingData();
                 RegioVincoDataModel dataModel = (RegioVincoDataModel)(game.getDataModel());
-                dataModel.removeAllButOneFromeStack(game);         
+                dataModel.removeAllButOneFromeStack(game);      
+               // dataModel.setGameState(WIN);
+               // dataModel.endGameAsWin();
+                
+                game.updateGUI();
             }
             finally
             {
                 game.endUsingData();
+               // if(callWin)
+                    
             }
         }
     }   

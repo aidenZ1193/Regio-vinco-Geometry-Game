@@ -54,6 +54,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
     private Text wrongGuess = new Text();
     private int wrong = 0;
     private long start;
+    private boolean added = false;
    // private Font font = new Font("Verdana", Font.BOLD, 12);
 
     /**
@@ -74,19 +75,21 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	mapPixelWriter = mapImage.getPixelWriter();
     }
 // I changed the return type to boolean from void
-    public boolean removeAllButOneFromeStack(RegioVincoGame game) {
-	while (subRegionStack.size() >= 1) {
+    public void removeAllButOneFromeStack(RegioVincoGame game) {
+	while (subRegionStack.size() > 1) {
+                         Label lla = subRegionStack.peek().getLabel();
+                        game.getGameLayer().getChildren().remove(lla);
+                        
 	    MovableText text = subRegionStack.removeFirst();
 	    String subRegionName = text.getText().getText();
-
+                        
+                        subRegionStack.peek().getLabel().setStyle("-fx-background-color: green");
+                        subRegionStack.peek().getText().setFill(Color.RED);
+                   
 	    // TURN THE TERRITORY GREEN
 	    changeSubRegionColorOnMap(game, subRegionName, Color.GREEN);
 	}
 	startTextStackMovingDown();
-        if(subRegionStack.size()==0)
-            return true;
-        else
-            return false;
     }
 
     public Text getTimer() {
@@ -178,6 +181,15 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	return subRegionToColorMappings.get(subRegion);
     }
 
+    public boolean isAdded() {
+        return added;
+    }
+
+    public void setAdded(boolean added) {
+        this.added = added;
+    }
+
+    
     // MUTATOR METHODS
 
     public void addColorToSubRegionMappings(Color colorKey, String subRegionName) {
@@ -207,8 +219,13 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                         Label lla = subRegionStack.peek().getLabel();
                         game.getGameLayer().getChildren().remove(lla);
 	    subRegionStack.removeFirst();
-                       subRegionStack.peek().getLabel().setStyle("-fx-background-color: green");
+                        if(subRegionStack.size() != 0){
+                      
+                            subRegionStack.peek().getLabel().setStyle("-fx-background-color: green");
                    subRegionStack.peek().getText().setFill(Color.RED);
+                        }
+                        else
+                            return;
 	    // AND LET'S CHANGE THE RED ONES BACK TO THEIR PROPER COLORS
 	    for (String s : redSubRegions) {
 		Color subRegionColor = subRegionToColorMappings.get(s);
@@ -263,7 +280,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
      */
     @Override
     public void reset(PointAndClickGame game) {
-                   
+                   game.getDataModel().beginGame();
 	// THIS GAME ONLY PLAYS AFGHANISTAN
 	regionName = "Afghanistan";
 	subRegionsType = "Provinces";
@@ -431,10 +448,19 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                     wrongGuess.setLayoutY(650);
                     wrongGuess.setFill(Color.AQUA);
                     wrong = 0;
+                    if(!added){
                     guiLayer.getChildren().add(timer);
                     guiLayer.getChildren().add(regionFound);
                     guiLayer.getChildren().add(regionNotFound);
                     guiLayer.getChildren().add(wrongGuess);
+                    added = true;
+                    }
+                    else {
+                        getRegionFound().setVisible(true);
+                       getTimer().setVisible(true);
+                        getRegionNotFound().setVisible(true);
+                        getWrongGuess().setVisible(true);
+                    }
 	// RESET THE AUDIO
 	AudioManager audio = ((RegioVincoGame) game).getAudio();
 	audio.stop(AFGHAN_ANTHEM);
@@ -476,7 +502,7 @@ public void updateAll(PointAndClickGame game, double percentage) {
     regionFound.setText("Regions Found: "+String.valueOf(getRegionsFound()));
     regionNotFound.setText("Regions Left: "+String.valueOf(getRegionsNotFound()));
     wrongGuess.setText("Incorrect Guesses: "+wrong);
-
+    
 }
 
     /**
