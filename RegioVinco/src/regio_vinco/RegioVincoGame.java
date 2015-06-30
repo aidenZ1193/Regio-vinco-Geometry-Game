@@ -35,6 +35,9 @@ public class RegioVincoGame extends PointAndClickGame {
     Pane gameLayer;
     Pane guiLayer;
     Pane labelLayer;
+    
+    Pane splashLayer;
+    
     Label timer ;
     Long endTime;
     long start;
@@ -58,6 +61,10 @@ public class RegioVincoGame extends PointAndClickGame {
     
     public AudioManager getAudio() {
 	return audio;
+    }
+    
+    public Pane getSplashLayer(){
+        return splashLayer;
     }
     
     public Pane getGameLayer() {
@@ -116,6 +123,12 @@ public class RegioVincoGame extends PointAndClickGame {
      */
     @Override
     public void initGUIControls() {
+                    
+                    splashLayer = new Pane();
+                    addStackPaneLayer(splashLayer);
+                    addGUIImage(splashLayer,BACKGROUND_TYPE, loadImage(SPLASH_FILE_PATH), BACKGROUND_X, BACKGROUND_Y);
+                    addGUIImage(splashLayer, TITLE_TYPE, loadImage(LOGO_FILE_PATH), LOGO_X, LOGO_Y);
+                    addGUIButton(splashLayer, ENTER_TYPE, loadImage(ENTER_BUTTON_FILE_PATH), ENTER_X, ENTER_Y);
 	// LOAD THE GUI IMAGES, WHICH INCLUDES THE BUTTONS
 	// THESE WILL BE ON SCREEN AT ALL TIMES
                    // data.setGameDimensions(GAME_WIDTH, GAME_HEIGHT);
@@ -123,7 +136,7 @@ public class RegioVincoGame extends PointAndClickGame {
 	backgroundLayer = new Pane();
 	addStackPaneLayer(backgroundLayer);
 	addGUIImage(backgroundLayer, BACKGROUND_TYPE, loadImage(BACKGROUND_FILE_PATH), BACKGROUND_X, BACKGROUND_Y);
-        
+                    backgroundLayer.setVisible(false);
                                      
 	// THEN THE GAME LAYER
 	gameLayer = new Pane();
@@ -148,6 +161,7 @@ public class RegioVincoGame extends PointAndClickGame {
 	mapView.setY(MAP_Y);
 	guiImages.put(MAP_TYPE, mapView);
 	guiLayer.getChildren().add(mapView);
+                    guiLayer.setVisible(false);
                     // add timer and the rest of the things down the screen
                   //  String timer = data.getSecondsAsTimeText(second);
                     

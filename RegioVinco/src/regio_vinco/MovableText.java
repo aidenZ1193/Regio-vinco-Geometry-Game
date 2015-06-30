@@ -1,7 +1,6 @@
 package regio_vinco;
 
 import javafx.scene.control.Label;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
 /**

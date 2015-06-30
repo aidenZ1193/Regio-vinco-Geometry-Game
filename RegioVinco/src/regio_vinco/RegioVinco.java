@@ -30,8 +30,11 @@ public class RegioVinco extends Application {
 
     // HERE ARE THE PATHS TO THE REST OF THE IMAGES WE'LL USE
     public static final String GUI_PATH = "./data/gui/";
+    public static final String SPLASH_FILE_PATH = GUI_PATH+ "RegioVincoSplash.jpg";
+    public static final String LOGO_FILE_PATH = GUI_PATH+"RegioVincoLogo.png";
     public static final String BACKGROUND_FILE_PATH = GUI_PATH + "RegioVincoBackground.jpg";
     public static final String TITLE_FILE_PATH = GUI_PATH + "RegioVincoTitle.png";
+    public static final String ENTER_BUTTON_FILE_PATH = GUI_PATH+"RegioVincoEnterButton.png";
     public static final String START_BUTTON_FILE_PATH = GUI_PATH + "RegioVincoStartButton.png";
     public static final String START_BUTTON_MO_FILE_PATH = GUI_PATH + "RegioVincoStartButtonMouseOver.png";
     public static final String EXIT_BUTTON_FILE_PATH = GUI_PATH + "RegioVincoExitButton.png";
@@ -47,6 +50,11 @@ public class RegioVinco extends Application {
     public static final int TARGET_FRAME_RATE = 30;
     public static final String APP_TITLE = "Regio Vinco";
     
+    // LOGO 
+    
+    public static final int LOGO_X = 500;
+    public static final int LOGO_Y = 0;
+    
     // BACKGROUND IMAGE
     public static final String BACKGROUND_TYPE = "BACKGROUND_TYPE";
     public static final int BACKGROUND_X = 0;
@@ -56,6 +64,11 @@ public class RegioVinco extends Application {
     public static final String TITLE_TYPE = "TITLE_TYPE";
     public static final int TITLE_X = 900;
     public static final int TITLE_Y = 0;
+    
+    // ENTER GAME BUTTON
+    public static final String ENTER_TYPE = "ENTER_TYPE";
+    public static final int ENTER_X = 550;
+    public static final int ENTER_Y = 630;
     
     // START GAME BUTTON
     public static final String START_TYPE = "START_TYPE";
