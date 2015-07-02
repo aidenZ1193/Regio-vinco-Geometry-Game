@@ -238,7 +238,7 @@ public class WorldDataManager
         allRegions.clear();
         
         // AND NOW MAKE OUR ROOT WORLD REGION
-        world = new Region(worldName,red, green, blue);
+        world = new Region(worldName,red, green, blue,null,null);
         allRegions.put(worldName, world); 
     }    
  

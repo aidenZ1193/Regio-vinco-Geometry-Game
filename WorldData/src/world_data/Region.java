@@ -28,6 +28,8 @@ public class Region<T extends Comparable<T>> implements Comparable<Region<T>>
     private String blue;
     private String red;
     
+    private String leader;
+    
     // THE PARENT REGION, WITHIN WHICH THIS REGION IS CONTAINED
     private Region parentRegion;
     
@@ -47,7 +49,7 @@ public class Region<T extends Comparable<T>> implements Comparable<Region<T>>
      * 
      * @param initType The type of this region
      */
-    public Region(String initName, String initRed, String initGreen, String initBlue)
+    public Region(String initName, String initRed, String initGreen, String initBlue, String initLeader, String initCapital)
     {
         // INIT THE PROVIDED FIELDS
        // id = initId;
@@ -55,7 +57,8 @@ public class Region<T extends Comparable<T>> implements Comparable<Region<T>>
         //type = initType;
         red = initRed;
         green = initGreen;
-        
+        leader = initLeader;
+        capital = initCapital;
         // NULL THE MISSING FIELDS
         parentRegion = null;
         capital = null;
@@ -70,6 +73,9 @@ public class Region<T extends Comparable<T>> implements Comparable<Region<T>>
      * 
      * @param initId The unique identifier for this regions. No two
      * regions may have the same id.
+     * @param initRed
+     * @param initGreen
+     * @param initBlue
      * 
      * @param initName The name of this region, which would typically
      * be used for display purposes.
@@ -78,13 +84,45 @@ public class Region<T extends Comparable<T>> implements Comparable<Region<T>>
      * 
      * @param initCapital The capital of this region.
      */
-    public Region(String initName, String initCapital, String initRed, String initGreen, String initBlue)
-    {
-        // LET THE OTHER CONSTRUCTOR DO MOST OF THE SETUP WORK
-        this(initName, initRed, initGreen, initBlue);
-        
-        // WE'LL KEEP THE CAPITAL
-        capital = initCapital;
+//    public Region(String initName, String initRed, String initGreen, String initBlue)
+//    {
+//        // LET THE OTHER CONSTRUCTOR DO MOST OF THE SETUP WORK
+//        this(initName, initRed, initGreen, initBlue);
+//        
+//        // WE'LL KEEP THE CAPITAL
+//        capital = initCapital;
+//    }
+
+    public String getGreen() {
+        return green;
+    }
+
+    public void setGreen(String green) {
+        this.green = green;
+    }
+
+    public String getBlue() {
+        return blue;
+    }
+
+    public void setBlue(String blue) {
+        this.blue = blue;
+    }
+
+    public String getRed() {
+        return red;
+    }
+
+    public void setRed(String red) {
+        this.red = red;
+    }
+
+    public ArrayList<Region> getSubRegions() {
+        return subRegions;
+    }
+
+    public void setSubRegions(ArrayList<Region> subRegions) {
+        this.subRegions = subRegions;
     }
 
     // ACCESSOR METHODS
@@ -95,6 +133,7 @@ public class Region<T extends Comparable<T>> implements Comparable<Region<T>>
      * @return The id of this region.
      */
   //  public String       getId()             { return id;            }
+    
     
     /**
      * Accessor method for getting this region's name.
@@ -131,11 +170,6 @@ public class Region<T extends Comparable<T>> implements Comparable<Region<T>>
      * @return An Iterator that can traverse sequentially through
      * all of the child regions of this region.
      */
-    public Iterator<Region> getSubRegions()
-    {
-        return subRegions.iterator();
-    }
-
     /**
      * Accessor method for getting the child Region of this one that
      * has an id the same as the subRegionId argument.
