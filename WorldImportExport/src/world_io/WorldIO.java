@@ -19,7 +19,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import world_data.Region;
-import world_data.RegionType;
 import world_data.WorldDataManager;
 import world_data.WorldImporterExporter;
 import static world_io.WorldIOSettings.*;
@@ -106,7 +105,7 @@ public class WorldIO implements WorldImporterExporter
         //world.clearRegions();
         
         // FIRST GET THE REGIONS LIST
-        Node regionsListNode = xmlUtil.getNodeWithName(doc,REGIONS_LIST_NODE);
+        Node regionsListNode = xmlUtil.getNodeWithName(doc,REGION_NODE);
         
         // AND THEN GO THROUGH AND ADD ALL THE LISTED REGIONS
         ArrayList<Node> regionsList = xmlUtil.getChildNodesWithName(regionsListNode, REGION_NODE);
@@ -117,25 +116,38 @@ public class WorldIO implements WorldImporterExporter
             NamedNodeMap regionAttributes = regionNode.getAttributes();
             //String id = regionAttributes.getNamedItem(ID_ATTRIBUTE).getNodeValue();
             String name = regionAttributes.getNamedItem(NAME_ATTRIBUTE).getNodeValue();
-            String capital = regionAttributes.getNamedItem(CAPITAL_ATTRIBUTE).getNodeValue();
+            //String capital = regionAttributes.getNamedItem(CAPITAL_ATTRIBUTE).getNodeValue();
             String red = regionAttributes.getNamedItem(RED_ATTRIBUTE).getNodeValue();
             String green = regionAttributes.getNamedItem(GREEN_ATTRIBUTE).getNodeValue();
             String blue = regionAttributes.getNamedItem(BLUE_ATTRIBUTE).getNodeValue();
             //String type = regionAttributes.getNamedItem(TYPE_ATTRIBUTE).getNodeValue();
             //RegionType regionType = RegionType.valueOf(type);
-            
+            String capital;
             Region regionToAdd;
             Node capitalNode = regionAttributes.getNamedItem(CAPITAL_ATTRIBUTE);
             if (capitalNode != null)
             {
                 // MAKE A REGION WITH A CAPITAL
                 capital = capitalNode.getNodeValue();
-                regionToAdd = new Region(name, red, green, blue);
+                //egionToAdd = new Region(name, red, green, blue);
+            }
+            else
+            {
+               capital = null;
+            }
+           Node leaderNode = regionAttributes.getNamedItem(LEADER_ATTRIBUTE);
+           String leader;
+            if (leaderNode != null)
+            {
+                // MAKE A REGION WITH A CAPITAL
+                leader = leaderNode.getNodeValue();
+                regionToAdd = new Region(name, red, green, blue,leader, capital);
             }
             else
             {
                 // MAKE A REGION WITHOUT A CAPITAL
-                regionToAdd = new Region(name, red, green, blue);
+                leader = null;
+                regionToAdd = new Region(name, red, green, blue,leader,capital);
             }
             // PUT THE REGION IN THE WORLD
             world.addRegion(regionToAdd);
