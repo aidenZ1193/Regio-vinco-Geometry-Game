@@ -1,6 +1,7 @@
 package regio_vinco;
 
 import audio_manager.AudioManager;
+import java.io.File;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -15,6 +16,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import pacg.PointAndClickGame;
 import static regio_vinco.RegioVinco.*;
+import world_data.WorldDataManager;
 
 /**
  * This class is a concrete PointAndClickGame, as specified in The PACG
@@ -26,6 +28,7 @@ public class RegioVincoGame extends PointAndClickGame {
 
     // THIS PROVIDES GAME AND GUI EVENT RESPONSES
     RegioVincoController controller;
+    WorldDataManager worldDataManager;
 
     // THIS PROVIDES MUSIC AND SOUND EFFECTS
     AudioManager audio;
@@ -54,9 +57,10 @@ public class RegioVincoGame extends PointAndClickGame {
     /**
      * Get the game setup.
      */
-    public RegioVincoGame(Stage initWindow) {
+    public RegioVincoGame(Stage initWindow, WorldDataManager mana) {
 	super(initWindow, APP_TITLE, TARGET_FRAME_RATE);
 	initAudio();
+                    worldDataManager = mana;
     }
     
     public AudioManager getAudio() {
@@ -141,7 +145,7 @@ public class RegioVincoGame extends PointAndClickGame {
 	// THEN THE GAME LAYER
 	gameLayer = new Pane();
 	addStackPaneLayer(gameLayer);
-	
+	gameLayer.setVisible(false);
 	// THEN THE GUI LAYER
 	guiLayer = new Pane();
 
@@ -161,7 +165,7 @@ public class RegioVincoGame extends PointAndClickGame {
 	mapView.setY(MAP_Y);
 	guiImages.put(MAP_TYPE, mapView);
 	guiLayer.getChildren().add(mapView);
-                    guiLayer.setVisible(false);
+                    guiLayer.setVisible(false); 
                     // add timer and the rest of the things down the screen
                   //  String timer = data.getSecondsAsTimeText(second);
                     
@@ -206,6 +210,13 @@ public class RegioVincoGame extends PointAndClickGame {
     @Override
     public void initGUIHandlers() {
 	controller = new RegioVincoController(this);
+        
+                    Button enterButton = guiButtons.get(ENTER_TYPE);
+                    
+                    enterButton.setOnAction(e->{
+                        controller.processEnterGameRequest();
+                       // System.out.println("enter button's id: "+enterButton.getId());
+                    });
 
 	Button startButton = guiButtons.get(START_TYPE);
 	startButton.setOnAction(e -> {
@@ -217,12 +228,14 @@ public class RegioVincoGame extends PointAndClickGame {
 	    controller.processExitGameRequest();
 	});
 
+                   
 	// MAKE THE CONTROLLER THE HOOK FOR KEY PRESSES
 	keyController.setHook(controller);
 
 	// SETUP MOUSE PRESSES ON THE MAP
-	ImageView mapView = guiImages.get(MAP_TYPE);
-	mapView.setOnMousePressed(e -> {
+	ImageView mapView2 = guiImages.get(MAP_TYPE);
+                    System.out.println("get map view?"+mapView2.toString());
+	mapView2.setOnMousePressed(e -> {
 	    controller.processMapClickRequest((int) e.getX(), (int) e.getY());
 	});
 	
@@ -308,8 +321,8 @@ public class RegioVincoGame extends PointAndClickGame {
               	}
     }
 
-    public void reloadMap() {
-	Image tempMapImage = loadImage(AFG_MAP_FILE_PATH);
+    public void reloadMap(String mapFile) {
+	Image tempMapImage = loadImage(mapFile);
 	PixelReader pixelReader = tempMapImage.getPixelReader();
 	WritableImage mapImage = new WritableImage(pixelReader, (int) tempMapImage.getWidth(), (int) tempMapImage.getHeight());
 	
@@ -388,5 +401,40 @@ public class RegioVincoGame extends PointAndClickGame {
                     la.setVisible(b);
                     la.setStyle("-fx-background-color: black");
                     
+   }
+   
+   public void setLayerToVisible(Pane layerNotToSee){
+       
+   }
+   
+   public void enterGame(){
+       splashLayer.setVisible(false);
+       backgroundLayer.setVisible(true);
+       gameLayer.setVisible(true);
+      // addGUIImage(gameLayer,WORLD_MAP_TYPE, loadImage(THE_WORLD_MAP), MAP_X, MAP_Y);
+       //reloadMap(THE_WORLD_MAP);
+       manageMap(THE_WORLD_MAP);
+       //File worldFile = new File("TheWorldRegion.xml");
+       Boolean  yeah = worldDataManager.load(THE_WORLD_REGION);
+       
+       guiLayer.setVisible(true);
+       System.out.println("Loaded? "+yeah);
+      // System.out.println(worldDataManager.getAllRegions().isEmpty());
+       
+   }
+   
+   public void manageMap(String mapFilePath){
+       //loadImage(mapFileName);
+       // clear pane first
+       gameLayer.getChildren().clear();
+       // now add image to pane, then store to hashtable, then clear mapView and add to it
+       addGUIImage(gameLayer,MAP_TYPE,loadImage(mapFilePath),MAP_X, MAP_Y);
+       reloadMap(mapFilePath);
+       ImageView mapView = new ImageView();
+       mapView.setImage(loadImage(mapFilePath));
+	mapView.setX(MAP_X);
+	mapView.setY(MAP_Y);
+	guiImages.put(MAP_TYPE, mapView);
+       
    }
 }

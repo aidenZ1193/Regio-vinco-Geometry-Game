@@ -223,6 +223,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	Color pixelColor = mapPixelReader.getColor(x, y);
 	String clickedSubRegion = colorToSubRegionMappings.get(pixelColor);
 	if ((clickedSubRegion == null) || (subRegionStack.isEmpty())) {
+                        
 	    return;
 	}
 	if (clickedSubRegion.equals(subRegionStack.get(0).getText().getText())) {
@@ -416,7 +417,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	}
                    
 	// RELOAD THE MAP
-	((RegioVincoGame) game).reloadMap();
+	((RegioVincoGame) game).reloadMap(AFG_MAP_FILE_PATH);
 
 	// LET'S RECORD ALL THE PIXELS
 	pixels = new HashMap();

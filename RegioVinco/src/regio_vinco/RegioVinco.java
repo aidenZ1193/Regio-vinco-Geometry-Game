@@ -1,8 +1,11 @@
 package regio_vinco;
 
+import java.io.File;
 import javafx.application.Application;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import world_data.WorldDataManager;
+import world_io.WorldIO;
 
 /**
  * This is the Regio Vinco game application. Note that it extends the
@@ -27,6 +30,7 @@ public class RegioVinco extends Application {
     public static final String REGION_NAME = "Afghanistan";
     public static final String MAPS_PATH = "./data/maps/";
     public static final String AFG_MAP_FILE_PATH = MAPS_PATH + "GreyscaleAFG.png";
+    public static final String THE_WORLD_MAP = MAPS_PATH+"TheWorldMap.png";
 
     // HERE ARE THE PATHS TO THE REST OF THE IMAGES WE'LL USE
     public static final String GUI_PATH = "./data/gui/";
@@ -41,6 +45,10 @@ public class RegioVinco extends Application {
     public static final String EXIT_BUTTON_MO_FILE_PATH = GUI_PATH + "RegioVincoExitButtonMouseOver.png";
     public static final String SUB_REGION_FILE_PATH = GUI_PATH + "RegioVincoSubRegion.png";
     public static final String WIN_DISPLAY_FILE_PATH = GUI_PATH + "RegioVincoWinDisplay.png";
+    
+    public static final String FILES_PATH = "./data/Regions/";
+    public static final String THE_WORLD_REGION = FILES_PATH+"TheWorldRegion.xml";
+    public static final String REGION_SCHEMA = FILES_PATH+"RegionData.xsd";
 
     // HERE ARE SOME APP-LEVEL SETTINGS, LIKE THE FRAME RATE. ALSO,
     // WE WILL BE LOADING SpriteType DATA FROM A FILE, SO THAT FILE
@@ -67,7 +75,7 @@ public class RegioVinco extends Application {
     
     // ENTER GAME BUTTON
     public static final String ENTER_TYPE = "ENTER_TYPE";
-    public static final int ENTER_X = 550;
+    public static final int ENTER_X = 520;
     public static final int ENTER_Y = 630;
     
     // START GAME BUTTON
@@ -85,6 +93,8 @@ public class RegioVinco extends Application {
     public static final String SUB_REGION_TYPE = "SUB_REGION_TYPE";
     public static final int MAP_X = 0;
     public static final int MAP_Y = 0;
+    
+    public static final String WORLD_MAP_TYPE = "WORLD_MAP_TYPE";
 
     // THE WIN DIALOG
     public static final String WIN_DISPLAY_TYPE = "WIN_DISPLAY";
@@ -119,8 +129,18 @@ public class RegioVinco extends Application {
      */
     @Override
     public void start(Stage primaryStage) {
-	RegioVincoGame game = new RegioVincoGame(primaryStage);
+	
+        WorldDataManager worldDataManager = new WorldDataManager();
+	
+	// INIT THE FILE I/O
+        // AND OUR IMPORTER/EXPORTER
+        File schemaFile = new File(REGION_SCHEMA);
+        WorldIO worldIO = new WorldIO(schemaFile);
+        worldDataManager.setWorldImporterExporter(worldIO);
+        
+        RegioVincoGame game = new RegioVincoGame(primaryStage,worldDataManager);
 	game.startGame();
+	
     }
 
     /**
