@@ -19,6 +19,8 @@ import javafx.scene.text.Text;
 import pacg.PointAndClickGame;
 import pacg.PointAndClickGameDataModel;
 import static regio_vinco.RegioVinco.*;
+import world_data.Region;
+import world_data.WorldDataManager;
 
 /**
  * This class manages the game data for the Regio Vinco game application. Note
@@ -55,6 +57,8 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
     private int wrong = 0;
     private long start;
     private boolean added = false;
+    
+    private WorldDataManager worldDataManager;
    // private Font font = new Font("Verdana", Font.BOLD, 12);
 
     /**
@@ -159,6 +163,15 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	subRegionsType = initSubRegionsType;
     }
 
+    public WorldDataManager getWorldDataManager() {
+        return worldDataManager;
+    }
+
+    public void setWorldDataManager(WorldDataManager worldDataManager) {
+        this.worldDataManager = worldDataManager;
+    }
+
+    
     public String getSecondsAsTimeText(long numSeconds) {
 	long numHours = numSeconds / 3600;
 	numSeconds = numSeconds - (numHours * 3600);
@@ -270,6 +283,12 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	    }
 	}
     }
+    
+    public void respondToSubRegionSelection(RegioVincoGame game, int x, int y){
+            Color pixelColor = mapPixelReader.getColor(x, y);
+            String clickedSubRegion = colorToSubRegionMappings.get(pixelColor);
+            
+    }
 
     public void startTextStackMovingDown() {
 	// AND START THE REST MOVING DOWN
@@ -291,6 +310,54 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	return colorToSubRegionMappings.keySet().size();
     }
 
+    public void enter(RegioVincoGame game){
+        game.enterGame();
+        resetPinkRegions();
+        resetRegion(game);
+    }
+    
+    public void resetRegion(RegioVincoGame game){
+        subRegionStack.clear();
+        subRegionToColorMappings.clear();
+        redSubRegions.clear();
+        colorToSubRegionMappings.clear();
+        
+        // LET'S RECORD ALL THE PIXELS
+	pixels = new HashMap();
+                    Region root = worldDataManager.getWorld();
+                    regionName = root.getName();
+	for (Region re : worldDataManager.getAllRegions()) {
+	    if(!re.getName().equals(regionName)){
+                                
+                                int red = Integer.valueOf(re.getRed());
+                                int green = Integer.valueOf(re.getGreen());
+                                int blue = Integer.valueOf(re.getBlue());
+                                colorToSubRegionMappings.put(makeColor(red,green,blue), re.getName());
+                                subRegionToColorMappings.put(re.getName(), makeColor(red,green,blue));
+                                pixels.put(re.getName(), new ArrayList());
+                        }
+	}
+
+	for (int i = 0; i < mapImage.getWidth(); i++) {
+	    for (int j = 0; j < mapImage.getHeight(); j++) {
+		Color c = mapPixelReader.getColor(i, j);
+		if (colorToSubRegionMappings.containsKey(c)) {
+		    String subRegion = colorToSubRegionMappings.get(c);
+		    ArrayList<int[]> subRegionPixels = pixels.get(subRegion);
+		    int[] pixel = new int[2];
+		    pixel[0] = i;
+		    pixel[1] = j;
+		    subRegionPixels.add(pixel);
+		}
+	    }
+	}
+    }
+    public void resetPinkRegions(){
+        
+    }
+    
+    
+    
     /**
      * Resets all the game data so that a brand new game may be played.
      *
@@ -312,40 +379,40 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
         // INIT THE MAPPINGS - NOTE THIS SHOULD 
 	// BE DONE IN A FILE, WHICH WE'LL DO IN
 	// FUTURE HOMEWORK ASSIGNMENTS
-	colorToSubRegionMappings.put(makeColor(200, 200, 200), "Badakhshan");
-	colorToSubRegionMappings.put(makeColor(198, 198, 198), "Nuristan");
-	colorToSubRegionMappings.put(makeColor(196, 196, 196), "Kunar");
-	colorToSubRegionMappings.put(makeColor(194, 194, 194), "Laghman");
-	colorToSubRegionMappings.put(makeColor(192, 192, 192), "Kapisa");
-	colorToSubRegionMappings.put(makeColor(190, 190, 190), "Panjshir");
-	colorToSubRegionMappings.put(makeColor(188, 188, 188), "Takhar");
-	colorToSubRegionMappings.put(makeColor(186, 186, 186), "Kunduz");
-	colorToSubRegionMappings.put(makeColor(184, 184, 184), "Baghlan");
-	colorToSubRegionMappings.put(makeColor(182, 182, 182), "Parwan");
-	colorToSubRegionMappings.put(makeColor(180, 180, 180), "Kabul");
-	colorToSubRegionMappings.put(makeColor(178, 178, 178), "Nangrahar");
-	colorToSubRegionMappings.put(makeColor(176, 176, 176), "Maidan Wardak");
-	colorToSubRegionMappings.put(makeColor(174, 174, 174), "Logar");
-	colorToSubRegionMappings.put(makeColor(172, 172, 172), "Paktia");
-	colorToSubRegionMappings.put(makeColor(170, 170, 170), "Khost");
-	colorToSubRegionMappings.put(makeColor(168, 168, 168), "Samangan");
-	colorToSubRegionMappings.put(makeColor(166, 166, 166), "Balkh");
-	colorToSubRegionMappings.put(makeColor(164, 164, 164), "Jowzjan");
-	colorToSubRegionMappings.put(makeColor(162, 162, 162), "Faryab");
-	colorToSubRegionMappings.put(makeColor(160, 160, 160), "Sar-e Pol");
-	colorToSubRegionMappings.put(makeColor(158, 158, 158), "Bamyan");
-	colorToSubRegionMappings.put(makeColor(156, 156, 156), "Ghazni");
-	colorToSubRegionMappings.put(makeColor(154, 154, 154), "Paktika");
-	colorToSubRegionMappings.put(makeColor(152, 152, 152), "Badghis");
-	colorToSubRegionMappings.put(makeColor(150, 150, 150), "Ghor");
-	colorToSubRegionMappings.put(makeColor(148, 148, 148), "Daykundi");
-	colorToSubRegionMappings.put(makeColor(146, 146, 146), "Oruzgan");
-	colorToSubRegionMappings.put(makeColor(144, 144, 144), "Zabul");
-	colorToSubRegionMappings.put(makeColor(142, 142, 142), "Herat");
-	colorToSubRegionMappings.put(makeColor(140, 140, 140), "Farah");
-	colorToSubRegionMappings.put(makeColor(138, 138, 138), "Nimruz");
-	colorToSubRegionMappings.put(makeColor(136, 136, 136), "Helmand");
-	colorToSubRegionMappings.put(makeColor(134, 134, 134), "Kandahar");
+//	colorToSubRegionMappings.put(makeColor(200, 200, 200), "Badakhshan");
+//	colorToSubRegionMappings.put(makeColor(198, 198, 198), "Nuristan");
+//	colorToSubRegionMappings.put(makeColor(196, 196, 196), "Kunar");
+//	colorToSubRegionMappings.put(makeColor(194, 194, 194), "Laghman");
+//	colorToSubRegionMappings.put(makeColor(192, 192, 192), "Kapisa");
+//	colorToSubRegionMappings.put(makeColor(190, 190, 190), "Panjshir");
+//	colorToSubRegionMappings.put(makeColor(188, 188, 188), "Takhar");
+//	colorToSubRegionMappings.put(makeColor(186, 186, 186), "Kunduz");
+//	colorToSubRegionMappings.put(makeColor(184, 184, 184), "Baghlan");
+//	colorToSubRegionMappings.put(makeColor(182, 182, 182), "Parwan");
+//	colorToSubRegionMappings.put(makeColor(180, 180, 180), "Kabul");
+//	colorToSubRegionMappings.put(makeColor(178, 178, 178), "Nangrahar");
+//	colorToSubRegionMappings.put(makeColor(176, 176, 176), "Maidan Wardak");
+//	colorToSubRegionMappings.put(makeColor(174, 174, 174), "Logar");
+//	colorToSubRegionMappings.put(makeColor(172, 172, 172), "Paktia");
+//	colorToSubRegionMappings.put(makeColor(170, 170, 170), "Khost");
+//	colorToSubRegionMappings.put(makeColor(168, 168, 168), "Samangan");
+//	colorToSubRegionMappings.put(makeColor(166, 166, 166), "Balkh");
+//	colorToSubRegionMappings.put(makeColor(164, 164, 164), "Jowzjan");
+//	colorToSubRegionMappings.put(makeColor(162, 162, 162), "Faryab");
+//	colorToSubRegionMappings.put(makeColor(160, 160, 160), "Sar-e Pol");
+//	colorToSubRegionMappings.put(makeColor(158, 158, 158), "Bamyan");
+//	colorToSubRegionMappings.put(makeColor(156, 156, 156), "Ghazni");
+//	colorToSubRegionMappings.put(makeColor(154, 154, 154), "Paktika");
+//	colorToSubRegionMappings.put(makeColor(152, 152, 152), "Badghis");
+//	colorToSubRegionMappings.put(makeColor(150, 150, 150), "Ghor");
+//	colorToSubRegionMappings.put(makeColor(148, 148, 148), "Daykundi");
+//	colorToSubRegionMappings.put(makeColor(146, 146, 146), "Oruzgan");
+//	colorToSubRegionMappings.put(makeColor(144, 144, 144), "Zabul");
+//	colorToSubRegionMappings.put(makeColor(142, 142, 142), "Herat");
+//	colorToSubRegionMappings.put(makeColor(140, 140, 140), "Farah");
+//	colorToSubRegionMappings.put(makeColor(138, 138, 138), "Nimruz");
+//	colorToSubRegionMappings.put(makeColor(136, 136, 136), "Helmand");
+//	colorToSubRegionMappings.put(makeColor(134, 134, 134), "Kandahar");
 
 	// REST THE MOVABLE TEXT
 	Pane gameLayer = ((RegioVincoGame)game).getGameLayer();
@@ -380,12 +447,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	    Text textNode = new Text(subRegion);
             // changed my text font
                         textNode.setFont(Font.font("BookAntiqua",FontWeight.BOLD,28));
-                       // textNode.setFill(Color.NAVY);    
-                        
-	    //gameLayer.getChildren().add(textNode);
-                       
 	    MovableText subRegionText = new MovableText(textNode);
-            
                         subRegionText.getLabel().setStyle("-fx-background-color: rgb(" + (c.getRed()*255) + "," 
                                                 + (c.getGreen()*255)+","+ (c.getBlue()*255) +")");
                         subRegionText.getLabel().setLayoutX(STACK_X);
@@ -417,7 +479,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	}
                    
 	// RELOAD THE MAP
-	((RegioVincoGame) game).reloadMap(AFG_MAP_FILE_PATH);
+	//((RegioVincoGame) game).reloadMap(AFG_MAP_FILE_PATH);
 
 	// LET'S RECORD ALL THE PIXELS
 	pixels = new HashMap();

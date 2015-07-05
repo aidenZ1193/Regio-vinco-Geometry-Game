@@ -2,11 +2,13 @@ package regio_vinco;
 
 import audio_manager.AudioManager;
 import java.io.File;
+import java.util.HashMap;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -17,6 +19,7 @@ import javafx.stage.Stage;
 import pacg.PointAndClickGame;
 import static regio_vinco.RegioVinco.*;
 import world_data.WorldDataManager;
+import world_io.WorldIO;
 
 /**
  * This class is a concrete PointAndClickGame, as specified in The PACG
@@ -29,7 +32,7 @@ public class RegioVincoGame extends PointAndClickGame {
     // THIS PROVIDES GAME AND GUI EVENT RESPONSES
     RegioVincoController controller;
     WorldDataManager worldDataManager;
-
+    WorldIO worldIO;
     // THIS PROVIDES MUSIC AND SOUND EFFECTS
     AudioManager audio;
     
@@ -40,7 +43,8 @@ public class RegioVincoGame extends PointAndClickGame {
     Pane labelLayer;
     
     Pane splashLayer;
-    
+    Pane helpLayer;
+    Pane settingLayer;
     Label timer ;
     Long endTime;
     long start;
@@ -53,6 +57,10 @@ public class RegioVincoGame extends PointAndClickGame {
     boolean add = false;
     boolean end = false;
     boolean isPlayed = false;
+    // key is map name.
+    private HashMap<String, ImageView> mapTable;
+    // To store all loaded xml file with data manager. key is file name
+    private HashMap<String, WorldDataManager> regionTable;
  //   RegioVincoDataModel dataModel = new RegioVincoDataModel();
     /**
      * Get the game setup.
@@ -76,6 +84,18 @@ public class RegioVincoGame extends PointAndClickGame {
     }
     public Pane getGuiLayer(){
                     return guiLayer;
+    }
+
+    public Pane getLabelLayer() {
+        return labelLayer;
+    }
+
+    public Pane getHelpLayer() {
+        return helpLayer;
+    }
+
+    public Pane getSettingLayer() {
+        return settingLayer;
     }
 
     public Pane getBackgroundLayer(){
@@ -118,6 +138,8 @@ public class RegioVincoGame extends PointAndClickGame {
 	boundaryRight = GAME_WIDTH;
 	boundaryTop = 0;
 	boundaryBottom = GAME_HEIGHT;
+        
+                    
     }
 
     /**
@@ -133,6 +155,7 @@ public class RegioVincoGame extends PointAndClickGame {
                     addGUIImage(splashLayer,BACKGROUND_TYPE, loadImage(SPLASH_FILE_PATH), BACKGROUND_X, BACKGROUND_Y);
                     addGUIImage(splashLayer, TITLE_TYPE, loadImage(LOGO_FILE_PATH), LOGO_X, LOGO_Y);
                     addGUIButton(splashLayer, ENTER_TYPE, loadImage(ENTER_BUTTON_FILE_PATH), ENTER_X, ENTER_Y);
+                    
 	// LOAD THE GUI IMAGES, WHICH INCLUDES THE BUTTONS
 	// THESE WILL BE ON SCREEN AT ALL TIMES
                    // data.setGameDimensions(GAME_WIDTH, GAME_HEIGHT);
@@ -142,6 +165,21 @@ public class RegioVincoGame extends PointAndClickGame {
 	addGUIImage(backgroundLayer, BACKGROUND_TYPE, loadImage(BACKGROUND_FILE_PATH), BACKGROUND_X, BACKGROUND_Y);
                     backgroundLayer.setVisible(false);
                                      
+                    helpLayer = new Pane();
+                    helpLayer.setVisible(false);
+                    stackPane.getChildren().add(helpLayer);  
+//                    addStackPaneLayer(helpLayer);
+                    addGUIButton(helpLayer, SETTING_TYPE+"help", loadImage(SETTING_BUTTON_PATH), SETTING_X, SETTING_Y);
+                    addGUIButton(helpLayer, RETURN_TO_MAP_TYPE+"help", loadImage(RETURN_BUTTON_PATH), HELP_X, HELP_Y);
+                    helpLayer.setStyle("-fx-background-color: red");
+                    
+                    settingLayer = new Pane();
+                    settingLayer.setVisible(false);
+                    addStackPaneLayer(settingLayer);
+                    addGUIButton(settingLayer, RETURN_TO_MAP_TYPE+"setting", loadImage(RETURN_BUTTON_PATH),SETTING_X, SETTING_Y);
+                    addGUIButton(settingLayer, HELP_TYPE+"setting",loadImage(HELP_BUTTON_PATH), HELP_X, HELP_Y);
+                    settingLayer.setStyle("-fx-background-color: white");
+                    
 	// THEN THE GAME LAYER
 	gameLayer = new Pane();
 	addStackPaneLayer(gameLayer);
@@ -153,6 +191,9 @@ public class RegioVincoGame extends PointAndClickGame {
 	addGUIImage(guiLayer, TITLE_TYPE, loadImage(TITLE_FILE_PATH), TITLE_X, TITLE_Y);
 	addGUIButton(guiLayer, START_TYPE, loadImage(START_BUTTON_FILE_PATH), START_X, START_Y);
 	addGUIButton(guiLayer, EXIT_TYPE, loadImage(EXIT_BUTTON_FILE_PATH), EXIT_X, EXIT_Y);
+                    addGUIButton(guiLayer, SETTING_TYPE, loadImage(SETTING_BUTTON_PATH), SETTING_X, SETTING_Y);
+                    addGUIButton(guiLayer, HELP_TYPE, loadImage(HELP_BUTTON_PATH), HELP_X, HELP_Y);
+                    
 	//Label la = new Label();
                     
 	// NOTE THAT THE MAP IS ALSO AN IMAGE, BUT
@@ -195,7 +236,8 @@ public class RegioVincoGame extends PointAndClickGame {
                              add = true;
                         
                 //    addLabels();
-                    
+                             
+                                   
     }
     
     // HELPER METHOD FOR LOADING IMAGES
@@ -212,12 +254,41 @@ public class RegioVincoGame extends PointAndClickGame {
 	controller = new RegioVincoController(this);
         
                     Button enterButton = guiButtons.get(ENTER_TYPE);
-                    
                     enterButton.setOnAction(e->{
                         controller.processEnterGameRequest();
                        // System.out.println("enter button's id: "+enterButton.getId());
                     });
+                    
+                    Button helpButton = guiButtons.get(HELP_TYPE);
+                    helpButton.setOnAction(e->{
+                        controller.processHelpRequest();
+                    });
+                    
+                    Button helpInSettingButton = guiButtons.get(HELP_TYPE+"setting");
+                    helpInSettingButton.setOnAction(e->{
+                        controller.processHelpRequest();
+                    });
+                    
+                    Button settingInHelpButton = guiButtons.get(SETTING_TYPE+"help");
+                    settingInHelpButton.setOnAction(e->{
+                        controller.processSettingRequest();
+                    });
+                    
+                    Button settingButton = guiButtons.get(SETTING_TYPE);
+                    settingButton.setOnAction(e->{
+                        controller.processSettingRequest();
+                    });
 
+                    Button returnButton = guiButtons.get(RETURN_TO_MAP_TYPE+"help");
+                    returnButton.setOnAction(e->{
+                        controller.processReturnRequest();
+                    });
+                    
+                    Button returnButton2 = guiButtons.get(RETURN_TO_MAP_TYPE+"setting");
+                    returnButton2.setOnAction(e->{
+                        controller.processReturnRequest();
+                    });
+                    
 	Button startButton = guiButtons.get(START_TYPE);
 	startButton.setOnAction(e -> {
 	    controller.processStartGameRequest();
@@ -320,11 +391,21 @@ public class RegioVincoGame extends PointAndClickGame {
                         }
               	}
     }
-
+   // this method is for load maps. If map already exist in hash map,then just swith map
+   // else load and put new map in the hash map
     public void reloadMap(String mapFile) {
-	Image tempMapImage = loadImage(mapFile);
-	PixelReader pixelReader = tempMapImage.getPixelReader();
-	WritableImage mapImage = new WritableImage(pixelReader, (int) tempMapImage.getWidth(), (int) tempMapImage.getHeight());
+        ImageView tempMapImage;
+        WritableImage mapImage;
+        if(mapTable.containsKey(mapFile)){
+            tempMapImage= mapTable.get(mapFile);
+            Image image = tempMapImage.getImage();
+            PixelReader pixelReader = image.getPixelReader();
+            mapImage = new WritableImage(pixelReader, (int) image.getWidth(), (int) image.getHeight());
+         }
+        else {
+	Image tempImage = loadImage(mapFile);
+	PixelReader pixelReader = tempImage.getPixelReader();
+	mapImage = new WritableImage(pixelReader, (int) tempImage.getWidth(), (int) tempImage.getHeight());
 	
                     for(int i = 0; i<mapImage.getWidth();i++){
                         for(int j = 0; j<mapImage.getHeight();j++){
@@ -334,16 +415,31 @@ public class RegioVincoGame extends PointAndClickGame {
                                 mapImage.getPixelWriter().setColor(i, j,Color.BLACK);
                         }
                     }
-                    
-                    ImageView mapView = guiImages.get(MAP_TYPE);
+                          
+                   ImageView mapView = guiImages.get(MAP_TYPE);
 	mapView.setImage(mapImage);
+                    mapTable.put(mapFile, mapView);
+        }
 	int numSubRegions = ((RegioVincoDataModel) data).getRegionsFound() + ((RegioVincoDataModel) data).getRegionsNotFound();
 	this.boundaryTop = -(numSubRegions * 50);
-
+                    
 	// AND GIVE THE WRITABLE MAP TO THE DATA MODEL
 	((RegioVincoDataModel) data).setMapImage(mapImage);
     }
     
+   // this method if for load region xml files. If file already exist in hash map, then use file name
+   // as  key to change xml. Else load and put new file in hash map.
+    public void reloadFile(String regionName){
+       WorldDataManager maner = new WorldDataManager();
+        if(regionTable.containsKey(regionName)){
+            maner = regionTable.get(regionName);
+        }
+        else {
+            String filePath = FILES_PATH+regionName+" Map.png";
+            File toLoad = new File(filePath);
+            
+        }
+    }
     public void addLabels(){
         RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
                        
@@ -403,8 +499,28 @@ public class RegioVincoGame extends PointAndClickGame {
                     
    }
    
-   public void setLayerToVisible(Pane layerNotToSee){
-       
+   public void setLayerToVisible(String layerToSee){
+       if(layerToSee.equalsIgnoreCase("help")){
+           gameLayer.setVisible(false);
+           splashLayer.setVisible(false);
+           settingLayer.setVisible(false);
+           helpLayer.setVisible(true);
+           getGuiLayer().setVisible(false);
+       } 
+       else if(layerToSee.equalsIgnoreCase("setting")){
+           gameLayer.setVisible(false);
+           splashLayer.setVisible(false);
+           settingLayer.setVisible(true);
+           helpLayer.setVisible(false);
+           getGuiLayer().setVisible(false);
+       } 
+       else if(layerToSee.equalsIgnoreCase("return")){
+           gameLayer.setVisible(true);
+           splashLayer.setVisible(false);
+           settingLayer.setVisible(false);
+           helpLayer.setVisible(false);
+           getGuiLayer().setVisible(true);
+       }
    }
    
    public void enterGame(){
@@ -412,8 +528,7 @@ public class RegioVincoGame extends PointAndClickGame {
        backgroundLayer.setVisible(true);
        gameLayer.setVisible(true);
       // addGUIImage(gameLayer,WORLD_MAP_TYPE, loadImage(THE_WORLD_MAP), MAP_X, MAP_Y);
-       //reloadMap(THE_WORLD_MAP);
-       manageMap(THE_WORLD_MAP);
+       reloadMap(THE_WORLD_MAP);
        //File worldFile = new File("TheWorldRegion.xml");
        Boolean  yeah = worldDataManager.load(THE_WORLD_REGION);
        
@@ -422,19 +537,26 @@ public class RegioVincoGame extends PointAndClickGame {
       // System.out.println(worldDataManager.getAllRegions().isEmpty());
        
    }
-   
-   public void manageMap(String mapFilePath){
-       //loadImage(mapFileName);
-       // clear pane first
-       gameLayer.getChildren().clear();
-       // now add image to pane, then store to hashtable, then clear mapView and add to it
-       addGUIImage(gameLayer,MAP_TYPE,loadImage(mapFilePath),MAP_X, MAP_Y);
-       reloadMap(mapFilePath);
-       ImageView mapView = new ImageView();
-       mapView.setImage(loadImage(mapFilePath));
-	mapView.setX(MAP_X);
-	mapView.setY(MAP_Y);
-	guiImages.put(MAP_TYPE, mapView);
+
+//   public void manageMap(String mapFilePath){
+//       //loadImage(mapFileName);
+//       // clear pane first
+//       gameLayer.getChildren().clear();
+//       // now add image to pane, then store to hashtable, then clear mapView and add to it
+//       if(mapTable.containsKey(mapFilePath)){
+//           
+//            addGUIImage(gameLayer,MAP_TYPE,loadImage(mapFilePath),MAP_X, MAP_Y);
+//            reloadMap(mapFilePath);
+//            ImageView mapView = new ImageView();
+//            mapView.setImage(loadImage(mapFilePath));
+//	mapView.setX(MAP_X);
+//	mapView.setY(MAP_Y);
+//	guiImages.put(MAP_TYPE, mapView);
+//       }
+//   }
+
+   public void manageFile(String filePath){
        
-   }
+}
+   
 }

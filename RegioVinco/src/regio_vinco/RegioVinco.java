@@ -27,15 +27,18 @@ public class RegioVinco extends Application {
 
     // FOR THIS APP WE'RE ONLY PLAYING WITH ONE MAP, BUT
     // IN THE FUTURE OUR GAMES WILL USE LOTS OF THEM
-    public static final String REGION_NAME = "Afghanistan";
-    public static final String MAPS_PATH = "./data/maps/";
-    public static final String AFG_MAP_FILE_PATH = MAPS_PATH + "GreyscaleAFG.png";
-    public static final String THE_WORLD_MAP = MAPS_PATH+"TheWorldMap.png";
+    //public static final String REGION_NAME = "Afghanistan";
+    
+   // public static final String AFG_MAP_FILE_PATH = MAPS_PATH + "GreyscaleAFG.png";
+    
 
     // HERE ARE THE PATHS TO THE REST OF THE IMAGES WE'LL USE
     public static final String GUI_PATH = "./data/gui/";
     public static final String SPLASH_FILE_PATH = GUI_PATH+ "RegioVincoSplash.jpg";
     public static final String LOGO_FILE_PATH = GUI_PATH+"RegioVincoLogo.png";
+    public static final String HELP_BUTTON_PATH = GUI_PATH+"RegioVincoHelpButton.png";
+    public static final String SETTING_BUTTON_PATH = GUI_PATH+"RegioVincoSettingButton.png";
+    public static final String RETURN_BUTTON_PATH = GUI_PATH+"RegioVincoReturnButton.jpg";
     public static final String BACKGROUND_FILE_PATH = GUI_PATH + "RegioVincoBackground.jpg";
     public static final String TITLE_FILE_PATH = GUI_PATH + "RegioVincoTitle.png";
     public static final String ENTER_BUTTON_FILE_PATH = GUI_PATH+"RegioVincoEnterButton.png";
@@ -46,8 +49,10 @@ public class RegioVinco extends Application {
     public static final String SUB_REGION_FILE_PATH = GUI_PATH + "RegioVincoSubRegion.png";
     public static final String WIN_DISPLAY_FILE_PATH = GUI_PATH + "RegioVincoWinDisplay.png";
     
-    public static final String FILES_PATH = "./data/Regions/";
-    public static final String THE_WORLD_REGION = FILES_PATH+"TheWorldRegion.xml";
+   // public static final String MAPS_PATH = "./data/The World/";
+    public static final String FILES_PATH = "./data/The World/";
+    public static final String THE_WORLD_MAP = FILES_PATH+"The World Map.png";
+    public static final String THE_WORLD_REGION = FILES_PATH+"The World Data.xml";
     public static final String REGION_SCHEMA = FILES_PATH+"RegionData.xsd";
 
     // HERE ARE SOME APP-LEVEL SETTINGS, LIKE THE FRAME RATE. ALSO,
@@ -67,6 +72,16 @@ public class RegioVinco extends Application {
     public static final String BACKGROUND_TYPE = "BACKGROUND_TYPE";
     public static final int BACKGROUND_X = 0;
     public static final int BACKGROUND_Y = 0;
+    
+    public static final String HELP_TYPE = "HELP_TYPE";
+    public static final String SETTING_TYPE = "SETTING_TYPE";
+    public static final String RETURN_TO_MAP_TYPE = "RETURN_TO_MAP-TYPE";
+    public static final int HELP_X=1130;
+    public static final int HELP_Y= 50;
+    public static final int SETTING_X=1080;
+    public static final int SETTING_Y= 50;
+   // public static final int RETURN_X = 1080;
+    //public static final int RETURN_Y = 5;
     
     // TITLE IMAGE
     public static final String TITLE_TYPE = "TITLE_TYPE";

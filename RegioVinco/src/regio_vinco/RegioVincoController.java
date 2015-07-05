@@ -18,6 +18,20 @@ public class RegioVincoController implements KeyPressHook {
                     game.enterGame();
     }
     
+    public void processHelpRequest(){
+                    game.setLayerToVisible("help");
+ //                   game.getGuiLayer().setVisible(false);
+    }
+    
+    public void processSettingRequest(){
+                    game.setLayerToVisible("setting");
+  //                  game.getGuiLayer().setVisible(false);
+    }
+    
+    public void processReturnRequest(){
+                    game.setLayerToVisible("return");
+  //                  game.getGuiLayer().setVisible(true);
+    }
     public void processStartGameRequest() {
 	game.reset();
     }
