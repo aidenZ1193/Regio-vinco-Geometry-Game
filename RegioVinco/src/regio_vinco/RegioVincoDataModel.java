@@ -71,6 +71,8 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	subRegionToColorMappings = new HashMap();
 	subRegionStack = new LinkedList();
 	redSubRegions = new LinkedList();
+                    // incase of null for worlddatamanager
+                    worldDataManager = new WorldDataManager();
     }
     
     public void setMapImage(WritableImage initMapImage) {
@@ -92,8 +94,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	    MovableText text = subRegionStack.removeFirst();
                        game.getGameLayer().getChildren().remove(text.getLabel());
 	    String subRegionName = text.getText().getText();
-                                                       
-                   
+               
 	    // TURN THE TERRITORY GREEN
 	    changeSubRegionColorOnMap(game, subRegionName, Color.GREEN);
 	}
@@ -284,12 +285,15 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	}
     }
     
-    public void respondToSubRegionSelection(RegioVincoGame game, int x, int y){
-            Color pixelColor = mapPixelReader.getColor(x, y);
-            String clickedSubRegion = colorToSubRegionMappings.get(pixelColor);
-            
+    public void respondToRegionSelection(RegioVincoGame game, int x, int y){
+                   Color pixelColor = mapPixelReader.getColor(x, y);
+	String clickedSubRegion = colorToSubRegionMappings.get(pixelColor);
+                    System.out.println("clickedSubRegion name in respond method: "+clickedSubRegion);
+                    game.reloadMap(clickedSubRegion);
+                    game.reloadFile(clickedSubRegion);
+                    resetRegion(game);
     }
-
+    
     public void startTextStackMovingDown() {
 	// AND START THE REST MOVING DOWN
 	for (MovableText mT : subRegionStack) {
@@ -312,6 +316,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 
     public void enter(RegioVincoGame game){
         game.enterGame();
+       
         resetPinkRegions();
         resetRegion(game);
     }
@@ -324,17 +329,21 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
         
         // LET'S RECORD ALL THE PIXELS
 	pixels = new HashMap();
+                    
                     Region root = worldDataManager.getWorld();
+                    //System.out.println("root from data manager's getWorld: "+root.getName());
                     regionName = root.getName();
 	for (Region re : worldDataManager.getAllRegions()) {
 	    if(!re.getName().equals(regionName)){
-                                
+                                System.out.println("names in reset region: "+re.getName());
                                 int red = Integer.valueOf(re.getRed());
                                 int green = Integer.valueOf(re.getGreen());
                                 int blue = Integer.valueOf(re.getBlue());
                                 colorToSubRegionMappings.put(makeColor(red,green,blue), re.getName());
                                 subRegionToColorMappings.put(re.getName(), makeColor(red,green,blue));
                                 pixels.put(re.getName(), new ArrayList());
+                                
+                                //System.out.println("colorToSubRegionMapping in resetRegion: "+colorToSubRegionMappings.get(makeColor(red,green,blue)));
                         }
 	}
 
@@ -351,6 +360,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 		}
 	    }
 	}
+        //for(Region a: colorToSubRegionMappings.get(root))
     }
     public void resetPinkRegions(){
         

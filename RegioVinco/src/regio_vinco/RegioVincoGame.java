@@ -2,13 +2,13 @@ package regio_vinco;
 
 import audio_manager.AudioManager;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -18,6 +18,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import pacg.PointAndClickGame;
 import static regio_vinco.RegioVinco.*;
+import world_data.Region;
 import world_data.WorldDataManager;
 import world_io.WorldIO;
 
@@ -39,6 +40,8 @@ public class RegioVincoGame extends PointAndClickGame {
     // THESE ARE THE GUI LAYERS
     Pane backgroundLayer;
     Pane gameLayer;
+    Text mapName;
+    Text ancestorText;
     Pane guiLayer;
     Pane labelLayer;
     
@@ -56,11 +59,13 @@ public class RegioVincoGame extends PointAndClickGame {
                 Text score;// = new Text();
     boolean add = false;
     boolean end = false;
-    boolean isPlayed = false;
+    boolean isPlaying = false;
     // key is map name.
     private HashMap<String, ImageView> mapTable;
     // To store all loaded xml file with data manager. key is file name
     private HashMap<String, WorldDataManager> regionTable;
+    
+    private ArrayList<String> path;
  //   RegioVincoDataModel dataModel = new RegioVincoDataModel();
     /**
      * Get the game setup.
@@ -69,6 +74,10 @@ public class RegioVincoGame extends PointAndClickGame {
 	super(initWindow, APP_TITLE, TARGET_FRAME_RATE);
 	initAudio();
                     worldDataManager = mana;
+                    
+                    mapTable=new HashMap<>();
+                    regionTable=new HashMap<>();
+                    path = new ArrayList();
     }
     
     public AudioManager getAudio() {
@@ -137,9 +146,7 @@ public class RegioVincoGame extends PointAndClickGame {
 	boundaryLeft = 0;
 	boundaryRight = GAME_WIDTH;
 	boundaryTop = 0;
-	boundaryBottom = GAME_HEIGHT;
-        
-                    
+	boundaryBottom = GAME_HEIGHT;                   
     }
 
     /**
@@ -194,7 +201,6 @@ public class RegioVincoGame extends PointAndClickGame {
                     addGUIButton(guiLayer, SETTING_TYPE, loadImage(SETTING_BUTTON_PATH), SETTING_X, SETTING_Y);
                     addGUIButton(guiLayer, HELP_TYPE, loadImage(HELP_BUTTON_PATH), HELP_X, HELP_Y);
                     
-	//Label la = new Label();
                     
 	// NOTE THAT THE MAP IS ALSO AN IMAGE, BUT
 	// WE'LL LOAD THAT WHEN A GAME STARTS, SINCE
@@ -207,6 +213,11 @@ public class RegioVincoGame extends PointAndClickGame {
 	guiImages.put(MAP_TYPE, mapView);
 	guiLayer.getChildren().add(mapView);
                     guiLayer.setVisible(false); 
+                    
+                    mapName = new Text();
+	 guiLayer.getChildren().add(mapName);
+                    ancestorText = new Text();
+                    guiLayer.getChildren().add(ancestorText);
                     // add timer and the rest of the things down the screen
                   //  String timer = data.getSecondsAsTimeText(second);
                     
@@ -304,10 +315,13 @@ public class RegioVincoGame extends PointAndClickGame {
 	keyController.setHook(controller);
 
 	// SETUP MOUSE PRESSES ON THE MAP
-	ImageView mapView2 = guiImages.get(MAP_TYPE);
-                    System.out.println("get map view?"+mapView2.toString());
-	mapView2.setOnMousePressed(e -> {
-	    controller.processMapClickRequest((int) e.getX(), (int) e.getY());
+	ImageView mapView = guiImages.get(MAP_TYPE);
+                   //System.out.println("get map view?"+mapView2.toString());
+	mapView.setOnMousePressed(e -> {
+                        if(isPlaying)
+                            controller.processMapClickRequest((int) e.getX(), (int) e.getY());
+                        else
+                            controller.processRegionClickRequest((int) e.getX(), (int) e.getY());
 	});
 	
 	// KILL THE APP IF THE USER CLOSES THE WINDOW
@@ -333,7 +347,7 @@ public class RegioVincoGame extends PointAndClickGame {
                    // RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
                     //dataModel.setAdded(false);
 	data.reset(this);
-                    isPlayed = false;
+                    isPlaying = false;
                     end = false;
                     add = false;
                     audio.stop(AFGHAN_ANTHEM);
@@ -403,7 +417,20 @@ public class RegioVincoGame extends PointAndClickGame {
             mapImage = new WritableImage(pixelReader, (int) image.getWidth(), (int) image.getHeight());
          }
         else {
-	Image tempImage = loadImage(mapFile);
+                    String mapFilePath = FILES_PATH;
+                    if(path.isEmpty()){
+                        mapFilePath += mapFile+"/";
+                        path.add(mapFile);
+                    } else {
+                            //mapFilePath = path.get(path.size()-1) + mapFile+"/";
+                        path.add(mapFile);
+                        for(int i = 0; i<path.size(); i++){
+                            mapFilePath+= path.get(i)+"/";
+                        }
+                    }                  
+                    mapFilePath += (mapFile+" Map.png");
+                    System.out.println("map file path in reload map: "+mapFilePath);
+	Image tempImage = loadImage(mapFilePath);
 	PixelReader pixelReader = tempImage.getPixelReader();
 	mapImage = new WritableImage(pixelReader, (int) tempImage.getWidth(), (int) tempImage.getHeight());
 	
@@ -415,16 +442,22 @@ public class RegioVincoGame extends PointAndClickGame {
                                 mapImage.getPixelWriter().setColor(i, j,Color.BLACK);
                         }
                     }
-                          
                    ImageView mapView = guiImages.get(MAP_TYPE);
 	mapView.setImage(mapImage);
-                    mapTable.put(mapFile, mapView);
+                    mapTable.put(mapFile, mapView);                    
         }
 	int numSubRegions = ((RegioVincoDataModel) data).getRegionsFound() + ((RegioVincoDataModel) data).getRegionsNotFound();
 	this.boundaryTop = -(numSubRegions * 50);
                     
 	// AND GIVE THE WRITABLE MAP TO THE DATA MODEL
 	((RegioVincoDataModel) data).setMapImage(mapImage);
+                    //guiLayer.getChildren().add(mapName);
+                        mapName.setLayoutX(300);//380);
+                        mapName.setLayoutY(50);//200);
+                        mapName.setText(path.get(path.size()-1));
+                        mapName.setFill(Color.WHITE);
+                        mapName.setFont(Font.font("BookAntiqua",FontWeight.BOLD,30));
+                        mapName.setVisible(true);
     }
     
    // this method if for load region xml files. If file already exist in hash map, then use file name
@@ -435,10 +468,25 @@ public class RegioVincoGame extends PointAndClickGame {
             maner = regionTable.get(regionName);
         }
         else {
-            String filePath = FILES_PATH+regionName+" Map.png";
+            String filePath = FILES_PATH;
+            //System.out.println("path's size: "+path.size());
+                       for(int i = 0; i<path.size(); i++){
+                            filePath+= path.get(i)+"/";
+                            System.out.println("file path loop in reload file: "+path.get(i));
+                        }
+                    //filePath = path.get(path.size()-1);
+                    filePath += (regionName+" Data.xml");
             File toLoad = new File(filePath);
-            
+            maner.setWorldImporterExporter(worldIO);
+            System.out.println("file path in reload file: "+filePath);
+            boolean yeah = maner.load(filePath);
+            System.out.println("file loaded in reloadFile? "+yeah);
+            if(yeah == true){
+                regionTable.put(regionName, maner);
+                ((RegioVincoDataModel)data).setWorldDataManager(maner);
+                maner.setRoot(new Region(regionName,null,null,null,null,null));
         }
+    }
     }
     public void addLabels(){
         RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
@@ -528,12 +576,18 @@ public class RegioVincoGame extends PointAndClickGame {
        backgroundLayer.setVisible(true);
        gameLayer.setVisible(true);
       // addGUIImage(gameLayer,WORLD_MAP_TYPE, loadImage(THE_WORLD_MAP), MAP_X, MAP_Y);
-       reloadMap(THE_WORLD_MAP);
-       //File worldFile = new File("TheWorldRegion.xml");
-       Boolean  yeah = worldDataManager.load(THE_WORLD_REGION);
+       reloadMap("The World");
        
+       //File worldFile = new File("TheWorldRegion.xml");
+       //Boolean  yeah = worldDataManager.load(THE_WORLD_REGION);
+       File schema = new File(REGION_SCHEMA);
+       worldIO = new WorldIO(schema);
+       
+       worldDataManager.setWorldImporterExporter(worldIO);
+       //worldDataManager.setRoot(null);
+       reloadFile("The World");
        guiLayer.setVisible(true);
-       System.out.println("Loaded? "+yeah);
+       //System.out.println("Loaded in enter game? "+yeah);
       // System.out.println(worldDataManager.getAllRegions().isEmpty());
        
    }

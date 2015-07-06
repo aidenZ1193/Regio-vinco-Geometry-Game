@@ -9,13 +9,21 @@ import pacg.KeyPressHook;
  */
 public class RegioVincoController implements KeyPressHook {
     RegioVincoGame game;
+    private enum GameType 
+{
+    START,
+    STOP,
+    NOTSTART,
+
+}
     
     public RegioVincoController(RegioVincoGame initGame) {
 	game = initGame;
     }
     
     public void processEnterGameRequest(){
-                    game.enterGame();
+                    //game.enterGame();
+               ((RegioVincoDataModel)game.getDataModel()).enter(game);
     }
     
     public void processHelpRequest(){
@@ -42,6 +50,10 @@ public class RegioVincoController implements KeyPressHook {
     
     public void processMapClickRequest(int x, int y) {
 	((RegioVincoDataModel)game.getDataModel()).respondToMapSelection(game, x, y);
+    }
+    
+    public void processRegionClickRequest(int x, int y){
+                    ((RegioVincoDataModel)game.getDataModel()).respondToRegionSelection(game,x,y);
     }
     
     @Override

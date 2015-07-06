@@ -50,7 +50,7 @@ public class RegioVinco extends Application {
     public static final String WIN_DISPLAY_FILE_PATH = GUI_PATH + "RegioVincoWinDisplay.png";
     
    // public static final String MAPS_PATH = "./data/The World/";
-    public static final String FILES_PATH = "./data/The World/";
+    public static final String FILES_PATH = "./data/";
     public static final String THE_WORLD_MAP = FILES_PATH+"The World Map.png";
     public static final String THE_WORLD_REGION = FILES_PATH+"The World Data.xml";
     public static final String REGION_SCHEMA = FILES_PATH+"RegionData.xsd";
