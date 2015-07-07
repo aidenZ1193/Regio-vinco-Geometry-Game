@@ -62,7 +62,7 @@ public class RegioVincoGame extends PointAndClickGame {
     boolean end = false;
     boolean isPlaying = false;
     // key is map name.
-    private HashMap<String, ImageView> mapTable;
+    private HashMap<String, Image> mapTable;
     // To store all loaded xml file with data manager. key is file name
     private HashMap<String, WorldDataManager> regionTable;
     
@@ -416,23 +416,24 @@ public class RegioVincoGame extends PointAndClickGame {
    // this method is for load maps. If map already exist in hash map,then just swith map
    // else load and put new map in the hash map
     public void reloadMap(String mapFile) {
-        ImageView tempMapImage;
+        ImageView tempMapImage = new ImageView();
         WritableImage mapImage;
+        Image tempImage;
+        PixelReader pixelReader;
         if(mapTable.containsKey(mapFile)){
-            tempMapImage= mapTable.get(mapFile);
-            Image image = tempMapImage.getImage();
-           // PixelReader pixelReader = image.getPixelReader();
-            //mapImage = new WritableImage(pixelReader, (int) image.getWidth(), (int) image.getHeight());
-            tempMapImage.setImage(mapImage);
+            tempImage= mapTable.get(mapFile);
+          //Image image = tempMapImage.getImage();
+            pixelReader = tempImage.getPixelReader();
+            mapImage = new WritableImage(pixelReader, (int) tempImage.getWidth(), (int) tempImage.getHeight());
+            tempMapImage.setImage(tempImage);
+            path.add(mapFile);
          }
         else {
                     String mapFilePath = FILES_PATH;
                     if(path.isEmpty()){
                         mapFilePath += mapFile+"/";
                         path.add(mapFile);
-                        //ancestorList.add(new Text());
                     } else {
-                            //mapFilePath = path.get(path.size()-1) + mapFile+"/";
                         path.add(mapFile);
                         //ancestorList.add(new Text());
                         for(int i = 0; i<path.size(); i++){
@@ -441,11 +442,12 @@ public class RegioVincoGame extends PointAndClickGame {
                     }                  
                     mapFilePath += (mapFile+" Map.png");
                     System.out.println("map file path in reload map: "+mapFilePath);
-	Image tempImage = loadImage(mapFilePath);
-	PixelReader pixelReader = tempImage.getPixelReader();
+	tempImage = loadImage(mapFilePath);
+	pixelReader = tempImage.getPixelReader();
 	mapImage = new WritableImage(pixelReader, (int) tempImage.getWidth(), (int) tempImage.getHeight());
-	
-                    for(int i = 0; i<mapImage.getWidth();i++){
+        }
+        System.out.println("path's size and last element: "+path.size()+" "+path.get(path.size()-1));
+        for(int i = 0; i<mapImage.getWidth();i++){
                         for(int j = 0; j<mapImage.getHeight();j++){
                             Color c = pixelReader.getColor(i, j);
                             Color c2 = Color.rgb(220, 110, 0);
@@ -453,17 +455,16 @@ public class RegioVincoGame extends PointAndClickGame {
                                 mapImage.getPixelWriter().setColor(i, j,Color.BLACK);
                         }
                     }
-                   ImageView mapView = guiImages.get(MAP_TYPE);
+        ImageView mapView = guiImages.get(MAP_TYPE);
 	mapView.setImage(mapImage);
-                    mapTable.put(mapFile, mapView);                    
-        }
+                    mapTable.put(mapFile, tempImage);        
 	int numSubRegions = ((RegioVincoDataModel) data).getRegionsFound() + ((RegioVincoDataModel) data).getRegionsNotFound();
 	this.boundaryTop = -(numSubRegions * 50);
                     
 	// AND GIVE THE WRITABLE MAP TO THE DATA MODEL
 	((RegioVincoDataModel) data).setMapImage(mapImage);
                     //guiLayer.getChildren().add(mapName);
-                        mapName.setLayoutX(300);//380);
+                        mapName.setLayoutX(400);//380);
                         mapName.setLayoutY(50);//200);
                         mapName.setText(path.get(path.size()-1));
                         mapName.setFill(Color.WHITE);
@@ -476,7 +477,7 @@ public class RegioVincoGame extends PointAndClickGame {
                             ancestorList.add(new Text());
                                 if(i == 0){
                                     ancestor = path.get(i);
-                                    ancestorList.get(i).setLayoutX(10);//380);
+                                    ancestorList.get(i).setLayoutX(50);//380);
                                     ancestorList.get(i).setLayoutY(670);//200);
                                     ancestorList.get(i).setText(ancestor);
                                     ancestorList.get(i).setFill(Color.WHITE);
@@ -488,7 +489,7 @@ public class RegioVincoGame extends PointAndClickGame {
                                 }
                                 else{
                                     ancestor = (" - "+path.get(i));
-                                    ancestorList.get(i).setLayoutX(10+i*100);//380);
+                                    ancestorList.get(i).setLayoutX(50+i*100);//380);
                                     ancestorList.get(i).setLayoutY(670);//200);
                                     ancestorList.get(i).setText(ancestor);
                                     ancestorList.get(i).setFill(Color.WHITE);
@@ -512,6 +513,8 @@ public class RegioVincoGame extends PointAndClickGame {
        WorldDataManager maner = new WorldDataManager();
         if(regionTable.containsKey(regionName)){
             maner = regionTable.get(regionName);
+            ((RegioVincoDataModel)data).setWorldDataManager(maner);
+                maner.setRoot(new Region(regionName,null,null,null,null,null));
         }
         else {
             String filePath = FILES_PATH;
@@ -542,19 +545,20 @@ public class RegioVincoGame extends PointAndClickGame {
                 path.clear();
                 guiLayer.getChildren().remove(guiLayer.getChildren().indexOf(ancestor)+1, guiLayer.getChildren().size());
                 ancestorList.clear();
-                path.add("The World");
+                //path.add("The World");
                 reloadMap("The World");
                 reloadFile("The World");
                 ((RegioVincoDataModel)data).resetRegion(this);
                 break;
-            case "Europe":
+            case " - Europe":
                 path.clear();
-                guiLayer.getChildren().remove(guiLayer.getChildren().size()-ancestorList.size(), guiLayer.getChildren().size());
+                guiLayer.getChildren().remove(guiLayer.getChildren().indexOf(ancestor)+1, guiLayer.getChildren().size());
                 //ancestorList.clear();
                 path.add("The World");
-                path.add("Europe");
+               //path.add("Europe");
                 reloadMap("Europe");
                 reloadFile("Europe");
+                ((RegioVincoDataModel)data).resetRegion(this);
                 break;
             default:
                 System.out.println("ancestorName get from click: " + ancestorName);

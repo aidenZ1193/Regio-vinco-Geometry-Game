@@ -331,7 +331,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	pixels = new HashMap();
                     
                     Region root = worldDataManager.getWorld();
-                    //System.out.println("root from data manager's getWorld: "+root.getName());
+                    System.out.println("root from data manager's getWorld: "+root.getName());
                     regionName = root.getName();
 	for (Region re : worldDataManager.getAllRegions()) {
 	    if(!re.getName().equals(regionName)){
