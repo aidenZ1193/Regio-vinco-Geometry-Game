@@ -41,7 +41,8 @@ public class RegioVincoGame extends PointAndClickGame {
     Pane backgroundLayer;
     Pane gameLayer;
     Text mapName;
-    Text ancestorText;
+    //Text ancestorText;
+    private ArrayList<Text> ancestorList;
     Pane guiLayer;
     Pane labelLayer;
     
@@ -216,8 +217,8 @@ public class RegioVincoGame extends PointAndClickGame {
                     
                     mapName = new Text();
 	 guiLayer.getChildren().add(mapName);
-                    ancestorText = new Text();
-                    guiLayer.getChildren().add(ancestorText);
+                    ancestorList = new ArrayList();
+                    guiLayer.getChildren().addAll(ancestorList);
                     // add timer and the rest of the things down the screen
                   //  String timer = data.getSecondsAsTimeText(second);
                     
@@ -299,6 +300,13 @@ public class RegioVincoGame extends PointAndClickGame {
                     returnButton2.setOnAction(e->{
                         controller.processReturnRequest();
                     });
+                    
+//                    for(int i = 0; i<ancestorList.size(); i++){
+//                        System.out.println("ancestorList in initController: "+ancestorList.get(i).getText());
+//                    ancestorList.get(i).setOnMouseClicked(e->{
+//                        processClickOnAncestorNodeRequest((Text)e.getSource());
+//                     });
+//                    }
                     
 	Button startButton = guiButtons.get(START_TYPE);
 	startButton.setOnAction(e -> {
@@ -413,17 +421,20 @@ public class RegioVincoGame extends PointAndClickGame {
         if(mapTable.containsKey(mapFile)){
             tempMapImage= mapTable.get(mapFile);
             Image image = tempMapImage.getImage();
-            PixelReader pixelReader = image.getPixelReader();
-            mapImage = new WritableImage(pixelReader, (int) image.getWidth(), (int) image.getHeight());
+           // PixelReader pixelReader = image.getPixelReader();
+            //mapImage = new WritableImage(pixelReader, (int) image.getWidth(), (int) image.getHeight());
+            tempMapImage.setImage(mapImage);
          }
         else {
                     String mapFilePath = FILES_PATH;
                     if(path.isEmpty()){
                         mapFilePath += mapFile+"/";
                         path.add(mapFile);
+                        //ancestorList.add(new Text());
                     } else {
                             //mapFilePath = path.get(path.size()-1) + mapFile+"/";
                         path.add(mapFile);
+                        //ancestorList.add(new Text());
                         for(int i = 0; i<path.size(); i++){
                             mapFilePath+= path.get(i)+"/";
                         }
@@ -458,6 +469,41 @@ public class RegioVincoGame extends PointAndClickGame {
                         mapName.setFill(Color.WHITE);
                         mapName.setFont(Font.font("BookAntiqua",FontWeight.BOLD,30));
                         mapName.setVisible(true);
+                        
+                        String ancestor;
+                        //guiLayer.getChildren().remove(guiLayer.getChildren().size()-ancestorList.size(), guiLayer.getChildren().size());
+                        for(int i = 0; i<path.size(); i++){
+                            ancestorList.add(new Text());
+                                if(i == 0){
+                                    ancestor = path.get(i);
+                                    ancestorList.get(i).setLayoutX(10);//380);
+                                    ancestorList.get(i).setLayoutY(670);//200);
+                                    ancestorList.get(i).setText(ancestor);
+                                    ancestorList.get(i).setFill(Color.WHITE);
+                                    ancestorList.get(i).setFont(Font.font("BookAntiqua",FontWeight.BOLD,20));
+                                    ancestorList.get(i).setVisible(true);  
+                                    if (!guiLayer.getChildren().contains(ancestorList.get(i)))
+                                        guiLayer.getChildren().add(ancestorList.get(i));
+                                    System.out.println("ancestorList in reloapMap: "+ancestorList.get(i).getText());
+                                }
+                                else{
+                                    ancestor = (" - "+path.get(i));
+                                    ancestorList.get(i).setLayoutX(10+i*100);//380);
+                                    ancestorList.get(i).setLayoutY(670);//200);
+                                    ancestorList.get(i).setText(ancestor);
+                                    ancestorList.get(i).setFill(Color.WHITE);
+                                    ancestorList.get(i).setFont(Font.font("BookAntiqua",FontWeight.BOLD,20));
+                                    ancestorList.get(i).setVisible(true); 
+                                    if (!guiLayer.getChildren().contains(ancestorList.get(i)))
+                                        guiLayer.getChildren().add(ancestorList.get(i));
+                                 }
+                                System.out.println("gui's children number before: "+guiLayer.getChildren().size());
+                                ancestorList.get(i).setOnMouseClicked(e->{
+                                        processClickOnAncestorNodeRequest((Text)e.getSource());
+                                });
+                                System.out.println("gui's children number after: "+guiLayer.getChildren().size());
+                                //guiLayer.getChildren().remove(guiLayer.getChildren().size()-ancestorList.size(), guiLayer.getChildren().size());
+                        }
     }
     
    // this method if for load region xml files. If file already exist in hash map, then use file name
@@ -486,8 +532,36 @@ public class RegioVincoGame extends PointAndClickGame {
                 ((RegioVincoDataModel)data).setWorldDataManager(maner);
                 maner.setRoot(new Region(regionName,null,null,null,null,null));
         }
+         }
     }
+            
+    public void processClickOnAncestorNodeRequest(Text ancestor){
+        String ancestorName = ancestor.getText();
+        switch(ancestorName){
+            case "The World": 
+                path.clear();
+                guiLayer.getChildren().remove(guiLayer.getChildren().indexOf(ancestor)+1, guiLayer.getChildren().size());
+                ancestorList.clear();
+                path.add("The World");
+                reloadMap("The World");
+                reloadFile("The World");
+                ((RegioVincoDataModel)data).resetRegion(this);
+                break;
+            case "Europe":
+                path.clear();
+                guiLayer.getChildren().remove(guiLayer.getChildren().size()-ancestorList.size(), guiLayer.getChildren().size());
+                //ancestorList.clear();
+                path.add("The World");
+                path.add("Europe");
+                reloadMap("Europe");
+                reloadFile("Europe");
+                break;
+            default:
+                System.out.println("ancestorName get from click: " + ancestorName);
+                break;
+        }
     }
+    
     public void addLabels(){
         RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
                        

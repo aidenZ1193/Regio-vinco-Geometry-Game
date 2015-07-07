@@ -335,7 +335,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                     regionName = root.getName();
 	for (Region re : worldDataManager.getAllRegions()) {
 	    if(!re.getName().equals(regionName)){
-                                System.out.println("names in reset region: "+re.getName());
+                                //System.out.println("names in reset region: "+re.getName());
                                 int red = Integer.valueOf(re.getRed());
                                 int green = Integer.valueOf(re.getGreen());
                                 int blue = Integer.valueOf(re.getBlue());
