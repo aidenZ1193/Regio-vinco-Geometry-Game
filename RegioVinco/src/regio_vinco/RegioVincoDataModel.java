@@ -1,6 +1,7 @@
 package regio_vinco;
 
 import audio_manager.AudioManager;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
@@ -317,7 +318,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
     public void enter(RegioVincoGame game){
         game.enterGame();
        
-        resetPinkRegions();
+        resetPinkRegions(game);
         resetRegion(game);
     }
     
@@ -362,8 +363,16 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	}
         //for(Region a: colorToSubRegionMappings.get(root))
     }
-    public void resetPinkRegions(){
-        
+    public void resetPinkRegions(RegioVincoGame game){
+        for(Region re: worldDataManager.getAllRegions()){
+            File file = new File(re.getName());
+            //System.out.println("region name in change color: "+re.getName());
+            if(file.exists())
+                System.out.println("region name in change color: "+re.getName());
+            else{
+                //changeSubRegionColorOnMap(game, re.getName(),Color.PINK);
+            }               
+        }
     }
     
     

@@ -442,6 +442,11 @@ public class RegioVincoGame extends PointAndClickGame {
                     }                  
                     mapFilePath += (mapFile+" Map.png");
                     System.out.println("map file path in reload map: "+mapFilePath);
+                    File file = new File(mapFilePath);
+//                    if(!file.exists()){
+//                        System.out.println("map does not exist. ");
+//                        return;
+//                    }
 	tempImage = loadImage(mapFilePath);
 	pixelReader = tempImage.getPixelReader();
 	mapImage = new WritableImage(pixelReader, (int) tempImage.getWidth(), (int) tempImage.getHeight());
@@ -540,37 +545,38 @@ public class RegioVincoGame extends PointAndClickGame {
             
     public void processClickOnAncestorNodeRequest(Text ancestor){
         String ancestorName = ancestor.getText();
-        switch(ancestorName){
-            case "The World": 
-                path.clear();
+        int size = ancestorList.size();
+        for(int i = 0; i<size; i++){
+            if(ancestorName.equals(ancestorList.get(i).getText())){
+                //path.clear();
                 guiLayer.getChildren().remove(guiLayer.getChildren().indexOf(ancestor)+1, guiLayer.getChildren().size());
-                ancestorList.clear();
-                //path.add("The World");
-                reloadMap("The World");
-                reloadFile("The World");
-                ((RegioVincoDataModel)data).resetRegion(this);
-                break;
-            case " - Europe":
-                path.clear();
-                guiLayer.getChildren().remove(guiLayer.getChildren().indexOf(ancestor)+1, guiLayer.getChildren().size());
-                //ancestorList.clear();
-                path.add("The World");
-               //path.add("Europe");
-                reloadMap("Europe");
-                reloadFile("Europe");
-                ((RegioVincoDataModel)data).resetRegion(this);
-                break;
-            default:
+                if(ancestorName.contains(" - ")){ // when clicked on europe or africa..
+                    String a = path.get(0);
+                    path.clear();
+                    path.add(a);
+                    reloadMap(ancestorName.substring(3, ancestorName.length()));
+                    reloadFile(ancestorName.substring(3, ancestorName.length()));
+                     ((RegioVincoDataModel)data).resetRegion(this);
+                     //((RegioVincoDataModel)data).resetPinkRegions(this, path);
+                     break;
+                } else{ // when clicked on the world
+                     path.clear();
+                     ancestorList.clear();
+                     reloadMap(ancestorName);
+                     reloadFile(ancestorName);
+                     ((RegioVincoDataModel)data).resetRegion(this);
+                     break;
+                }
+            }else{
                 System.out.println("ancestorName get from click: " + ancestorName);
-                break;
+                System.out.println("ancestorList.get(i): "+ancestorList.get(i).getText());
+               // break;
+            }
         }
     }
     
     public void addLabels(){
         RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
-                       
-                        
-                        
                         time.setLayoutX(70);//380);
                         time.setLayoutY(220);//200);
                         time.setText("Game Duration: "+dataModel.getSecondsAsTimeText(endTime/1000-dataModel.getStart()/1000));
