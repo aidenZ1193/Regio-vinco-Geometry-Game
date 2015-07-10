@@ -1,4 +1,4 @@
-﻿<region name=”Russia”>
+﻿<region name="Russia">
 	<sub_region red="200" green="200" blue="200" name="Sakhalin oblast" capital="Yuzhno-Sakhalinsk" />
 	<sub_region red="198" green="198" blue="198" name="Khabarovsk krai" capital="Khabarovsk" />
 	<sub_region red="196" green="196" blue="196" name="Primorye krai" capital="Vladivostok" />
@@ -82,4 +82,4 @@
 	<sub_region red="46" green="46" blue="46" name="Ingushetia republic" capital="Magas" />
 	<sub_region red="44" green="44" blue="44" name="Chechnya republic" capital="Grozny" />
 	<sub_region red="42" green="42" blue="42" name="Dagestan republic" capital="Makhachkala" />
-<region name=”Russia”/>
+</region>

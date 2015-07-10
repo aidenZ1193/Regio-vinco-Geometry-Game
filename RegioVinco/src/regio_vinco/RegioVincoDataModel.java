@@ -286,13 +286,17 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	}
     }
     
-    public void respondToRegionSelection(RegioVincoGame game, int x, int y){
+    public void respondToRegionSelection(RegioVincoGame game, int x, int y, ArrayList<String> path){
                    Color pixelColor = mapPixelReader.getColor(x, y);
 	String clickedSubRegion = colorToSubRegionMappings.get(pixelColor);
+         if ((clickedSubRegion == null)) {
+	    return;
+	}       
                     System.out.println("clickedSubRegion name in respond method: "+clickedSubRegion);
-                    game.reloadMap(clickedSubRegion);
                     game.reloadFile(clickedSubRegion);
+                    game.reloadMap(clickedSubRegion);
                     resetRegion(game);
+                    resetPinkRegions(game,path);
     }
     
     public void startTextStackMovingDown() {
@@ -317,9 +321,10 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 
     public void enter(RegioVincoGame game){
         game.enterGame();
-       
-        resetPinkRegions(game);
+       ArrayList<String> a = new ArrayList();
+       a.add("The World");
         resetRegion(game);
+        resetPinkRegions(game, a);
     }
     
     public void resetRegion(RegioVincoGame game){
@@ -363,15 +368,33 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	}
         //for(Region a: colorToSubRegionMappings.get(root))
     }
-    public void resetPinkRegions(RegioVincoGame game){
+    public void resetPinkRegions(RegioVincoGame game, ArrayList<String>path){
+        int size;
         for(Region re: worldDataManager.getAllRegions()){
-            File file = new File(re.getName());
-            //System.out.println("region name in change color: "+re.getName());
-            if(file.exists())
-                System.out.println("region name in change color: "+re.getName());
-            else{
-                //changeSubRegionColorOnMap(game, re.getName(),Color.PINK);
-            }               
+                        String filePath = FILES_PATH;
+                        if(path.size()>1)
+                            size = path.size()-1;
+                        else
+                            size = path.size();
+                       for(int i = 0; i<path.size(); i++){
+                            filePath+= path.get(i)+"/";
+                            //System.out.println("folder path loop in pink region: "+path.get(i));
+                        }
+            if(!re.getName().equals(worldDataManager.getWorld().getName())) {
+                    filePath += (re.getName()+"/"+re.getName()+" Data.xml");           
+                    //System.out.println("region fie path in change color: "+filePath);
+            }else{
+                filePath += (re.getName()+" Data.xml");
+                game.loadAndPut(re.getName(),filePath);
+            }
+                                File toLoad = new File(filePath);
+                     if(toLoad.exists()){
+                        //System.out.println("region name in change color: "+re.getName());
+                         game.loadAndPut(re.getName(),filePath);
+                     }
+                        else{
+                            changeSubRegionColorOnMap(game, re.getName(),Color.PINK);
+                        }
         }
     }
     

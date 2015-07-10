@@ -38,6 +38,13 @@ public class RegioVinco extends Application {
     public static final String LOGO_FILE_PATH = GUI_PATH+"RegioVincoLogo.png";
     public static final String HELP_BUTTON_PATH = GUI_PATH+"RegioVincoHelpButton.png";
     public static final String SETTING_BUTTON_PATH = GUI_PATH+"RegioVincoSettingButton.png";
+    
+    public static final String REGION_BUTTON_PATH = GUI_PATH+"RegioVincoRegionButton.png";
+    public static final String CAPITAL_BUTTON_PATH = GUI_PATH+"RegioVincoCapitalButton.png";
+    public static final String FLAG_BUTTON_PATH = GUI_PATH+"RegioVincoFlagButton.png";
+    public static final String LEADER_BUTTON_PATH = GUI_PATH+"RegioVincoLeaderButton.png";
+    public static final String STOP_BUTTON_PATH = GUI_PATH+"RegioVincoStopButton.png";
+    
     public static final String RETURN_BUTTON_PATH = GUI_PATH+"RegioVincoReturnButton.jpg";
     public static final String BACKGROUND_FILE_PATH = GUI_PATH + "RegioVincoBackground.jpg";
     public static final String TITLE_FILE_PATH = GUI_PATH + "RegioVincoTitle.png";
@@ -92,6 +99,23 @@ public class RegioVinco extends Application {
     public static final String ENTER_TYPE = "ENTER_TYPE";
     public static final int ENTER_X = 520;
     public static final int ENTER_Y = 630;
+    
+    // all mode buttons
+    public static final String REGION_TYPE = "REGION_TYPE";
+    public static final int REGION_X = 900;
+    public static final int REGION_Y = 100;
+    public static final String CAPITAL_TYPE = "CAPITAL_TYPE";
+    public static final int CAPITAL_X = 961;
+    public static final int CAPITAL_Y = 100;
+    public static final String FLAG_TYPE = "FLAG_TYPE";
+    public static final int FLAG_X = 1007;
+    public static final int FLAG_Y = 100;
+    public static final String LEADER_TYPE = "LEADER_TYPE";
+    public static final int LEADER_X = 1058;
+    public static final int LEADER_Y = 100;
+    public static final String STOP_TYPE = "STOP_TYPE";
+    public static final int STOP_X = 1131;
+    public static final int STOP_Y = 100;
     
     // START GAME BUTTON
     public static final String START_TYPE = "START_TYPE";

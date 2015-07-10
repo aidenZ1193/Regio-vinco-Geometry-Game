@@ -1,5 +1,6 @@
 package regio_vinco;
 
+import java.util.ArrayList;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import pacg.KeyPressHook;
@@ -52,8 +53,8 @@ public class RegioVincoController implements KeyPressHook {
 	((RegioVincoDataModel)game.getDataModel()).respondToMapSelection(game, x, y);
     }
     
-    public void processRegionClickRequest(int x, int y){
-                    ((RegioVincoDataModel)game.getDataModel()).respondToRegionSelection(game,x,y);
+    public void processRegionClickRequest(int x, int y,ArrayList<String> path){
+                    ((RegioVincoDataModel)game.getDataModel()).respondToRegionSelection(game,x,y,path);
     }
     
     @Override
