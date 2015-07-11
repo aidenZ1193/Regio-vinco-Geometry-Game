@@ -10,13 +10,6 @@ import pacg.KeyPressHook;
  */
 public class RegioVincoController implements KeyPressHook {
     RegioVincoGame game;
-    private enum GameType 
-{
-    START,
-    STOP,
-    NOTSTART,
-
-}
     
     public RegioVincoController(RegioVincoGame initGame) {
 	game = initGame;
@@ -40,6 +33,10 @@ public class RegioVincoController implements KeyPressHook {
     public void processReturnRequest(){
                     game.setLayerToVisible("return");
   //                  game.getGuiLayer().setVisible(true);
+    }
+    
+    public void processStopRequest(){
+                    game.stop();
     }
     public void processStartGameRequest() {
 	game.reset();

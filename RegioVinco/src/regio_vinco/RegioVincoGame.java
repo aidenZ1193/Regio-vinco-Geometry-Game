@@ -17,7 +17,9 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import pacg.PointAndClickGame;
+import static regio_vinco.GameMode.DISPLAY_MODE;
 import static regio_vinco.RegioVinco.*;
+import regio_vinco_dialog.ConfirmDialog;
 import world_data.Region;
 import world_data.WorldDataManager;
 import world_io.WorldIO;
@@ -67,6 +69,10 @@ public class RegioVincoGame extends PointAndClickGame {
     private HashMap<String, WorldDataManager> regionTable;
     
     private ArrayList<String> path;
+    
+    private ConfirmDialog confirmDialog;
+    
+    private GameMode gamingMode;
  //   RegioVincoDataModel dataModel = new RegioVincoDataModel();
     /**
      * Get the game setup.
@@ -79,6 +85,8 @@ public class RegioVincoGame extends PointAndClickGame {
                     mapTable=new HashMap<>();
                     regionTable=new HashMap<>();
                     path = new ArrayList();
+                    confirmDialog = new ConfirmDialog(initWindow);
+                    gamingMode = GameMode.DISPLAY_MODE;
     }
     
     public AudioManager getAudio() {
@@ -110,6 +118,49 @@ public class RegioVincoGame extends PointAndClickGame {
 
     public Pane getBackgroundLayer(){
                      return backgroundLayer;
+    }
+
+    public Long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Long endTime) {
+        this.endTime = endTime;
+    }
+
+    public long getStart() {
+        return start;
+    }
+
+    public void setStart(long start) {
+        this.start = start;
+    }
+
+    public boolean isEnd() {
+        return end;
+    }
+
+    public void setEnd(boolean end) {
+        this.end = end;
+    }
+
+    public boolean isIsPlaying() {
+        return isPlaying;
+    }
+
+    public GameMode getGamingMode() {
+        return gamingMode;
+    }
+
+    public void setGamingMode(GameMode gamingMode) {
+        this.gamingMode = gamingMode;
+    }
+
+    public void setIsPlaying(boolean isPlaying) {
+        this.isPlaying = isPlaying;
+    }
+    public void changeGameMode(GameMode mode){
+        gamingMode = mode;
     }
     /**
      * Initializes audio for the game.
@@ -308,7 +359,19 @@ public class RegioVincoGame extends PointAndClickGame {
 	// MAKE THE CONTROLLER THE HOOK FOR KEY PRESSES
 	keyController.setHook(controller);
         
-                  // ImageView 
+                  Button regionButton = guiButtons.get(REGION_TYPE);
+                  regionButton.setOnAction(e->{
+                      setGamingMode(GameMode.REGION_MODE);
+                      ((RegioVincoDataModel)data).reset(this);
+                      isPlaying = true;
+                  });
+                  
+                  Button capitalButton = guiButtons.get(CAPITAL_TYPE);
+                  capitalButton.setOnAction(e->{
+                      setGamingMode(GameMode.CAPITAL_MODE);
+                      ((RegioVincoDataModel)data).reset(this);
+                      isPlaying = true;
+                  });
 
 	// SETUP MOUSE PRESSES ON THE MAP
 	ImageView mapView = guiImages.get(MAP_TYPE);
@@ -374,14 +437,14 @@ public class RegioVincoGame extends PointAndClickGame {
                    // System.out.println(data.getGameState());
                    RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
                    
-                   if(dataModel.getRegionsFound() == 34){
-                       if(!end){
-                            data.endGameAsWin();
-                            endTime = System.currentTimeMillis();
-                            addLabels();
-                            end = true;
-                        }
-                   }
+//                   if(dataModel.getRegionsFound() == 34){
+//                       if(!end){
+//                            data.endGameAsWin();
+//                            endTime = System.currentTimeMillis();
+//                            addLabels();
+//                            end = true;
+//                        }
+//                   }
 	if (data.won()) {
 	    ImageView winImage = guiImages.get(WIN_DISPLAY_TYPE);
 	    winImage.setVisible(true);
@@ -498,6 +561,8 @@ public class RegioVincoGame extends PointAndClickGame {
             maner.load(filePath);
             regionTable.put(regionName, maner);
             maner.setRoot(new Region(regionName,null,null,null,null,null));
+            for(Region re: maner.getAllRegions())
+                System.out.println("capital in loadAndPut: "+re.getName()+" "+re.getCapital());
             //path.add(regionName);
             //System.out.println("In loadAndPut: "+regionName+" is stored.");
         }
@@ -683,8 +748,13 @@ public class RegioVincoGame extends PointAndClickGame {
        
    }
 
-   public void manageFile(String filePath){
-       
-}
+   public void stop(){
+       String selection = "";
+       selection = confirmDialog.showYesNoCancel("STOP", "Are you sure you want to stop the game?");
+       if(selection == "YES"){
+           ((RegioVincoDataModel)data).stopMode();
+       }
+           
+   }
    
 }
