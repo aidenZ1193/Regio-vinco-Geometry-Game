@@ -60,11 +60,13 @@ public class RegioVincoGame extends PointAndClickGame {
                  Text subRegions;// = new Text();
                 Text guesses;// = new Text();
                 Text score;// = new Text();
+                Label flag;
     boolean add = false;
     boolean end = false;
     boolean isPlaying = false;
     // key is map name.
     private HashMap<String, Image> mapTable;
+    private HashMap<String, Image> flagTable;
     // To store all loaded xml file with data manager. key is file name
     private HashMap<String, WorldDataManager> regionTable;
     
@@ -83,10 +85,12 @@ public class RegioVincoGame extends PointAndClickGame {
                     worldDataManager = mana;
                     
                     mapTable=new HashMap<>();
+                    flagTable = new HashMap<>();
                     regionTable=new HashMap<>();
                     path = new ArrayList();
                     confirmDialog = new ConfirmDialog(initWindow);
                     gamingMode = GameMode.DISPLAY_MODE;
+                    buttonControl(gamingMode);
     }
     
     public AudioManager getAudio() {
@@ -168,9 +172,9 @@ public class RegioVincoGame extends PointAndClickGame {
     private void initAudio() {
 	audio = new AudioManager();
 	try {
-	    audio.loadAudio(TRACKED_SONG, TRACKED_FILE_NAME);
-	    audio.play(TRACKED_SONG, true);
-
+	    audio.loadAudio(BACKGROUND_SONG, BACKGROUND_FILE_NAME);
+	    audio.play(BACKGROUND_SONG, true);
+                    System.out.println("inside initAudio of game.");
 	    audio.loadAudio(AFGHAN_ANTHEM, AFGHAN_ANTHEM_FILE_NAME);
 	    audio.loadAudio(SUCCESS, SUCCESS_FILE_NAME);
 	    audio.loadAudio(FAILURE, FAILURE_FILE_NAME);
@@ -244,20 +248,22 @@ public class RegioVincoGame extends PointAndClickGame {
 	addStackPaneLayer(gameLayer);
 	gameLayer.setVisible(false);
 	// THEN THE GUI LAYER
-	guiLayer = new Pane();
-
-	addStackPaneLayer(guiLayer);
-	addGUIImage(guiLayer, TITLE_TYPE, loadImage(TITLE_FILE_PATH), TITLE_X, TITLE_Y);
-	//addGUIButton(guiLayer, START_TYPE, loadImage(START_BUTTON_FILE_PATH), START_X, START_Y);
-	//addGUIButton(guiLayer, EXIT_TYPE, loadImage(EXIT_BUTTON_FILE_PATH), EXIT_X, EXIT_Y);
-                    addGUIButton(guiLayer, SETTING_TYPE, loadImage(SETTING_BUTTON_PATH), SETTING_X, SETTING_Y);
-                    addGUIButton(guiLayer, HELP_TYPE, loadImage(HELP_BUTTON_PATH), HELP_X, HELP_Y);
-                    addGUIButton(guiLayer, REGION_TYPE, loadImage(REGION_BUTTON_PATH), REGION_X, REGION_Y);
-                    addGUIButton(guiLayer, CAPITAL_TYPE, loadImage(CAPITAL_BUTTON_PATH), CAPITAL_X, CAPITAL_Y);
-                    addGUIButton(guiLayer, FLAG_TYPE, loadImage(FLAG_BUTTON_PATH), FLAG_X, FLAG_Y);
-                    addGUIButton(guiLayer, LEADER_TYPE, loadImage(LEADER_BUTTON_PATH), LEADER_X, LEADER_Y);
-                    addGUIButton(guiLayer, STOP_TYPE, loadImage(STOP_BUTTON_PATH), STOP_X, STOP_Y);
-                    
+                    initGUILayer();
+//	guiLayer = new Pane();
+//
+//	addStackPaneLayer(guiLayer);
+//	addGUIImage(guiLayer, TITLE_TYPE, loadImage(TITLE_FILE_PATH), TITLE_X, TITLE_Y);
+//	//addGUIButton(guiLayer, START_TYPE, loadImage(START_BUTTON_FILE_PATH), START_X, START_Y);
+//	//addGUIButton(guiLayer, EXIT_TYPE, loadImage(EXIT_BUTTON_FILE_PATH), EXIT_X, EXIT_Y);
+//                    addGUIButton(guiLayer, SETTING_TYPE, loadImage(SETTING_BUTTON_PATH), SETTING_X, SETTING_Y);
+//                    addGUIButton(guiLayer, HELP_TYPE, loadImage(HELP_BUTTON_PATH), HELP_X, HELP_Y);
+//                    addGUIButton(guiLayer, REGION_TYPE, loadImage(REGION_BUTTON_PATH), REGION_X, REGION_Y);
+//                    addGUIButton(guiLayer, CAPITAL_TYPE, loadImage(CAPITAL_BUTTON_PATH), CAPITAL_X, CAPITAL_Y);
+//                    addGUIButton(guiLayer, FLAG_TYPE, loadImage(FLAG_BUTTON_PATH), FLAG_X, FLAG_Y);
+//                    addGUIButton(guiLayer, LEADER_TYPE, loadImage(LEADER_BUTTON_PATH), LEADER_X, LEADER_Y);
+//                    addGUIButton(guiLayer, STOP_TYPE, loadImage(STOP_BUTTON_PATH), STOP_X, STOP_Y);
+//                    
+//                    Button capitalButton = guiButtons.get(CAPITAL_TYPE);
 	// NOTE THAT THE MAP IS ALSO AN IMAGE, BUT
 	// WE'LL LOAD THAT WHEN A GAME STARTS, SINCE
 	// WE'LL BE CHANGING THE PIXELS EACH TIME
@@ -282,6 +288,9 @@ public class RegioVincoGame extends PointAndClickGame {
 	ImageView winView = addGUIImage(guiLayer, WIN_DISPLAY_TYPE, loadImage(WIN_DISPLAY_FILE_PATH), WIN_X, WIN_Y);
 	winView.setVisible(false);
         
+                   // Image flag = new Image(TITLE_FILE_PATH);
+                    flag = new Label();
+                    
                     labelLayer = new Pane();
                     labelLayer.setMinSize(500, 400);
                     labelLayer.setMaxSize(500, 400);
@@ -294,17 +303,31 @@ public class RegioVincoGame extends PointAndClickGame {
                    subRegions = new Text();
                    guesses = new Text();
                    score = new Text();
-                   
+                   addGUIImage(labelLayer, TITLE_TYPE, loadImage(TITLE_FILE_PATH), 20, 20);
+                             labelLayer.getChildren().add(flag);
                              labelLayer.getChildren().add(time);
                              labelLayer.getChildren().add(region);
                              labelLayer.getChildren().add(subRegions);
                              labelLayer.getChildren().add(score);
                              labelLayer.getChildren().add(guesses);
-                             add = true;
-                        
-                //    addLabels();
-                             
-                                   
+                             add = true;                
+    }
+    
+    public void initGUILayer(){
+        	guiLayer = new Pane();
+
+	addStackPaneLayer(guiLayer);
+	addGUIImage(guiLayer, TITLE_TYPE, loadImage(TITLE_FILE_PATH), TITLE_X, TITLE_Y);
+	//addGUIButton(guiLayer, START_TYPE, loadImage(START_BUTTON_FILE_PATH), START_X, START_Y);
+	//addGUIButton(guiLayer, EXIT_TYPE, loadImage(EXIT_BUTTON_FILE_PATH), EXIT_X, EXIT_Y);
+                    addGUIButton(guiLayer, SETTING_TYPE, loadImage(SETTING_BUTTON_PATH), SETTING_X, SETTING_Y);
+                    addGUIButton(guiLayer, HELP_TYPE, loadImage(HELP_BUTTON_PATH), HELP_X, HELP_Y);
+                    addGUIButton(guiLayer, REGION_TYPE, loadImage(REGION_BUTTON_PATH), REGION_X, REGION_Y);
+                    addGUIButton(guiLayer, CAPITAL_TYPE, loadImage(CAPITAL_BUTTON_PATH), CAPITAL_X, CAPITAL_Y);
+                    addGUIButton(guiLayer, FLAG_TYPE, loadImage(FLAG_BUTTON_PATH), FLAG_X, FLAG_Y);
+                    addGUIButton(guiLayer, LEADER_TYPE, loadImage(LEADER_BUTTON_PATH), LEADER_X, LEADER_Y);
+                    addGUIButton(guiLayer, STOP_TYPE, loadImage(STOP_BUTTON_PATH), STOP_X, STOP_Y);
+                    
     }
     
     // HELPER METHOD FOR LOADING IMAGES
@@ -363,6 +386,7 @@ public class RegioVincoGame extends PointAndClickGame {
                   regionButton.setOnAction(e->{
                       setGamingMode(GameMode.REGION_MODE);
                       ((RegioVincoDataModel)data).reset(this);
+                      buttonControl(getGamingMode());
                       isPlaying = true;
                   });
                   
@@ -370,6 +394,15 @@ public class RegioVincoGame extends PointAndClickGame {
                   capitalButton.setOnAction(e->{
                       setGamingMode(GameMode.CAPITAL_MODE);
                       ((RegioVincoDataModel)data).reset(this);
+                      buttonControl(getGamingMode());
+                      isPlaying = true;
+                  });
+                  
+                  Button leaderButton = guiButtons.get(LEADER_TYPE);
+                  leaderButton.setOnAction(e->{
+                      setGamingMode(GameMode.LEADER_MODE);
+                      ((RegioVincoDataModel)data).reset(this);
+                      buttonControl(getGamingMode());
                       isPlaying = true;
                   });
 
@@ -381,6 +414,7 @@ public class RegioVincoGame extends PointAndClickGame {
                             controller.processMapClickRequest((int) e.getX(), (int) e.getY());
                         else
                             controller.processRegionClickRequest((int) e.getX(), (int) e.getY(),path);
+                        buttonControl(getGamingMode());
 	});
 	
 	// KILL THE APP IF THE USER CLOSES THE WINDOW
@@ -410,7 +444,7 @@ public class RegioVincoGame extends PointAndClickGame {
                     end = false;
                     add = false;
                     audio.stop(AFGHAN_ANTHEM);
-                    audio.play(TRACKED_SONG, true);
+                    audio.play(BACKGROUND_SONG, true);
                     
                     //audio.play(AFGHAN_ANTHEM, false);
     }
@@ -436,15 +470,6 @@ public class RegioVincoGame extends PointAndClickGame {
 	// IF THE GAME IS OVER, DISPLAY THE APPROPRIATE RESPONSE
                    // System.out.println(data.getGameState());
                    RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
-                   
-//                   if(dataModel.getRegionsFound() == 34){
-//                       if(!end){
-//                            data.endGameAsWin();
-//                            endTime = System.currentTimeMillis();
-//                            addLabels();
-//                            end = true;
-//                        }
-//                   }
 	if (data.won()) {
 	    ImageView winImage = guiImages.get(WIN_DISPLAY_TYPE);
 	    winImage.setVisible(true);
@@ -547,11 +572,11 @@ public class RegioVincoGame extends PointAndClickGame {
                                 ancestorList.get(i).setOnMouseClicked(e->{
                                         processClickOnAncestorNodeRequest((Text)e.getSource());
                                 });
-                                //System.out.println("gui's children number after: "+guiLayer.getChildren().size());
-                                //guiLayer.getChildren().remove(guiLayer.getChildren().size()-ancestorList.size(), guiLayer.getChildren().size());
                         }
     }
-    
+    public void reloadFlag(String flagFile){
+        
+    }
     public void loadAndPut(String regionName, String filePath){
         WorldDataManager maner = new WorldDataManager();
         if(regionTable.containsKey(regionName)){
@@ -561,10 +586,6 @@ public class RegioVincoGame extends PointAndClickGame {
             maner.load(filePath);
             regionTable.put(regionName, maner);
             maner.setRoot(new Region(regionName,null,null,null,null,null));
-            for(Region re: maner.getAllRegions())
-                System.out.println("capital in loadAndPut: "+re.getName()+" "+re.getCapital());
-            //path.add(regionName);
-            //System.out.println("In loadAndPut: "+regionName+" is stored.");
         }
     }
    // this method if for load region xml files. If file already exist in hash map, then use file name
@@ -645,10 +666,13 @@ public class RegioVincoGame extends PointAndClickGame {
                // break;
             }
         }
+        setGamingMode(DISPLAY_MODE);
+        buttonControl(getGamingMode());       
     }
     
     public void addLabels(){
         RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
+
                         time.setLayoutX(70);//380);
                         time.setLayoutY(220);//200);
                         time.setText("Game Duration: "+dataModel.getSecondsAsTimeText(endTime/1000-dataModel.getStart()/1000));
@@ -724,6 +748,47 @@ public class RegioVincoGame extends PointAndClickGame {
            settingLayer.setVisible(false);
            helpLayer.setVisible(false);
            getGuiLayer().setVisible(true);
+       }
+   }
+   
+   public void buttonControl(GameMode mode){
+       Button helpButton = guiButtons.get(HELP_TYPE);
+       Button capitalButton = guiButtons.get(CAPITAL_TYPE);
+       Button leaderButton = guiButtons.get(LEADER_TYPE);
+       Button flagButton = guiButtons.get(FLAG_TYPE);
+       Button regionButton = guiButtons.get(REGION_TYPE);
+       switch(mode){
+           case DISPLAY_MODE: 
+               if(path.size() < 2){
+                   System.out.println("path's size checking in button control: "+path.size());
+                   regionButton.setDisable(false);
+                   capitalButton.setDisable(true);
+                   leaderButton.setDisable(true);
+                   flagButton.setDisable(true);
+               }
+               else if(path.size() == 3){
+                   capitalButton.setDisable(false);
+                   regionButton.setDisable(false);
+                   leaderButton.setDisable(true);
+                   flagButton.setDisable(true);
+               }
+               else{
+                   capitalButton.setDisable(false);
+                   regionButton.setDisable(false);
+                   leaderButton.setDisable(false);
+                   flagButton.setDisable(false);
+               }
+               regionButton.setDisable(false);
+               break;
+           case REGION_MODE: case CAPITAL_MODE: case LEADER_MODE:
+               helpButton.setDisable(true);
+               regionButton.setDisable(true);
+               capitalButton.setDisable(true);
+               leaderButton.setDisable(true);
+               flagButton.setDisable(true);
+               break;
+           case STOP_MODE:
+               
        }
    }
    

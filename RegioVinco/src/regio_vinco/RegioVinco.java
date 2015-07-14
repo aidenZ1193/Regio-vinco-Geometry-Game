@@ -159,6 +159,8 @@ public class RegioVinco extends Application {
     public static final String SUCCESS = "SUCCESS";
     public static final String FAILURE = "FAILURE";
     public static final String TRACKED_SONG = "TRACKED_SONG";
+    public static final String BACKGROUND_SONG = "BACKGROUND_SONG";
+    public static final String BACKGROUND_FILE_NAME = AUDIO_DIR+ "viva la vida.wav";
 
     /**
      * This is where the RegioVinco application starts. It proceeds to make a

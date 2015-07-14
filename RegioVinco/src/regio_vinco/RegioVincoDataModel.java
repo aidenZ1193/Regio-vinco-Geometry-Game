@@ -50,6 +50,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
     private HashMap<String, ArrayList<int[]>> pixels;
     private LinkedList<String> redSubRegions;
     private LinkedList<MovableText> subRegionStack;
+    private int subRegionsNumber;
     
     private Text timer = new Text();
     private Text regionFound = new Text();
@@ -71,6 +72,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	colorToSubRegionMappings = new HashMap();
 	subRegionToColorMappings = new HashMap();
 	subRegionStack = new LinkedList();
+                    subRegionsNumber = 0;
 	redSubRegions = new LinkedList();
                     // incase of null for worlddatamanager
                     worldDataManager = new WorldDataManager();
@@ -237,7 +239,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	// PLAYER CLICKED NO THE CORRECT SUBREGION
 	Color pixelColor = mapPixelReader.getColor(x, y);
 	String clickedSubRegion = colorToSubRegionMappings.get(pixelColor);
-                System.out.println("Clicked on(respondToMap): "+clickedSubRegion);
+                //System.out.println("Clicked on(respondToMap): "+clickedSubRegion);
 	if ((clickedSubRegion == null) || (subRegionStack.isEmpty())) {
                         System.out.println("Inisde the respondToMap method. Returning.");
 	    return;
@@ -293,7 +295,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
          if ((clickedSubRegion == null)) {
 	    return;
 	}       
-                    System.out.println("clickedSubRegion name in respond method: "+clickedSubRegion);
+                    //System.out.println("clickedSubRegion name in respond method: "+clickedSubRegion);
                     game.reloadFile(clickedSubRegion);
                     game.reloadMap(clickedSubRegion);
                     resetRegion(game);
@@ -311,7 +313,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
         // THIS IS WHERE WE'LL CHECK TO SEE IF THE
 	// PLAYER CLICKED NO THE CORRECT SUBREGION
 	ArrayList<int[]> subRegionPixels = pixels.get(subRegion);
-        System.out.println("in changeColor: is pixels empty? "+pixels.isEmpty());
+        //System.out.println("in changeColor: is pixels empty? "+pixels.isEmpty());
 	for (int[] pixel : subRegionPixels) {
 	    mapPixelWriter.setColor(pixel[0], pixel[1], color);
 	}
@@ -339,7 +341,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                          int green = Integer.valueOf(re.getGreen());
                          int blue = Integer.valueOf(re.getBlue());
                          
-                         System.out.println("capital in resetMapping: "+re.getCapital());
+                        // System.out.println("capital in resetMapping: "+re.getCapital());
                          if(mode.equals(GameMode.REGION_MODE))       
                              key = re.getName();
                          else if(mode.equals(GameMode.LEADER_MODE))
@@ -351,10 +353,14 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                              return;
                          }
                          
-                       //System.out.println("key in resetMapping: "+key);
-                         colorToSubRegionMappings.put(makeColor(red,green,blue), key);
-                         subRegionToColorMappings.put(key, makeColor(red,green,blue));
-                         changeSubRegionColorOnMap(game, key,makeColor(red,green,blue));
+                       System.out.println("key in resetMapping: "+re.getName()+": "+key);
+                         if(key == null)
+                             changeSubRegionColorOnMap(game, re.getName(),Color.PINK);
+                         else{
+                            colorToSubRegionMappings.put(makeColor(red,green,blue), key);
+                            subRegionToColorMappings.put(key, makeColor(red,green,blue));
+                            changeSubRegionColorOnMap(game, re.getName(),makeColor(red,green,blue));
+                         }
                     }
                 }
     }
@@ -493,6 +499,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	    //textNode.setX(STACK_X);
 	    subRegionStack.add(subRegionText);
 	}
+                    subRegionsNumber = subRegionStack.size();
                     System.out.println("subRegionStack size in reset: "+subRegionStack.size());
 	Collections.shuffle(subRegionStack);
                    subRegionStack.peek().getLabel().setStyle("-fx-background-color: green");
@@ -566,10 +573,11 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                     }
 	// RESET THE AUDIO
 	AudioManager audio = ((RegioVincoGame) game).getAudio();
+      //  System.out.println("audio name in dataModel's reset: "+audio. )
 	audio.stop(AFGHAN_ANTHEM);
 
-	if (!audio.isPlaying(TRACKED_SONG)) {
-	    audio.play(TRACKED_SONG, true);
+	if (!audio.isPlaying(BACKGROUND_SONG)) {
+	    audio.play(BACKGROUND_SONG, true);
 	}
 	// LET'S GO
 	beginGame();
@@ -590,7 +598,7 @@ public void updateAll(PointAndClickGame game, double percentage) {
     for (MovableText mT : subRegionStack) {
         mT.update(percentage);
     }
-   if(getRegionsFound() == subRegionStack.size()){
+   if(getRegionsFound() == subRegionsNumber){
              endGameAsWin();
              ((RegioVincoGame)game).setEndTime(System.currentTimeMillis());
               ((RegioVincoGame)game).addLabels();

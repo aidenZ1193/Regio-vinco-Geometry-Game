@@ -11,9 +11,9 @@ package regio_vinco;
  */
 public enum GameMode {
     DISPLAY_MODE,
+    REGION_MODE,
     CAPITAL_MODE,
     FLAG_MODE,
     LEADER_MODE,
     STOP_MODE,
-     REGION_MODE   
 }
