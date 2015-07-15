@@ -20,6 +20,7 @@ import pacg.PointAndClickGame;
 import static regio_vinco.GameMode.DISPLAY_MODE;
 import static regio_vinco.RegioVinco.*;
 import regio_vinco_dialog.ConfirmDialog;
+import regio_vinco_dialog.MessageDialog;
 import world_data.Region;
 import world_data.WorldDataManager;
 import world_io.WorldIO;
@@ -249,21 +250,7 @@ public class RegioVincoGame extends PointAndClickGame {
 	gameLayer.setVisible(false);
 	// THEN THE GUI LAYER
                     initGUILayer();
-//	guiLayer = new Pane();
-//
-//	addStackPaneLayer(guiLayer);
-//	addGUIImage(guiLayer, TITLE_TYPE, loadImage(TITLE_FILE_PATH), TITLE_X, TITLE_Y);
-//	//addGUIButton(guiLayer, START_TYPE, loadImage(START_BUTTON_FILE_PATH), START_X, START_Y);
-//	//addGUIButton(guiLayer, EXIT_TYPE, loadImage(EXIT_BUTTON_FILE_PATH), EXIT_X, EXIT_Y);
-//                    addGUIButton(guiLayer, SETTING_TYPE, loadImage(SETTING_BUTTON_PATH), SETTING_X, SETTING_Y);
-//                    addGUIButton(guiLayer, HELP_TYPE, loadImage(HELP_BUTTON_PATH), HELP_X, HELP_Y);
-//                    addGUIButton(guiLayer, REGION_TYPE, loadImage(REGION_BUTTON_PATH), REGION_X, REGION_Y);
-//                    addGUIButton(guiLayer, CAPITAL_TYPE, loadImage(CAPITAL_BUTTON_PATH), CAPITAL_X, CAPITAL_Y);
-//                    addGUIButton(guiLayer, FLAG_TYPE, loadImage(FLAG_BUTTON_PATH), FLAG_X, FLAG_Y);
-//                    addGUIButton(guiLayer, LEADER_TYPE, loadImage(LEADER_BUTTON_PATH), LEADER_X, LEADER_Y);
-//                    addGUIButton(guiLayer, STOP_TYPE, loadImage(STOP_BUTTON_PATH), STOP_X, STOP_Y);
-//                    
-//                    Button capitalButton = guiButtons.get(CAPITAL_TYPE);
+                    
 	// NOTE THAT THE MAP IS ALSO AN IMAGE, BUT
 	// WE'LL LOAD THAT WHEN A GAME STARTS, SINCE
 	// WE'LL BE CHANGING THE PIXELS EACH TIME
@@ -304,6 +291,7 @@ public class RegioVincoGame extends PointAndClickGame {
                    guesses = new Text();
                    score = new Text();
                    addGUIImage(labelLayer, TITLE_TYPE, loadImage(TITLE_FILE_PATH), 20, 20);
+                   addGUIButton(labelLayer, RETURN_TO_MAP_TYPE+"win", loadImage(RETURN_BUTTON_PATH), 360, 20);
                              labelLayer.getChildren().add(flag);
                              labelLayer.getChildren().add(time);
                              labelLayer.getChildren().add(region);
@@ -378,6 +366,11 @@ public class RegioVincoGame extends PointAndClickGame {
                     returnButton2.setOnAction(e->{
                         controller.processReturnRequest();
                     });
+                    
+                    Button returnButton3 = guiButtons.get(RETURN_TO_MAP_TYPE+"win");
+                    returnButton3.setOnAction(e->{
+                        reset();
+                    });
                    
 	// MAKE THE CONTROLLER THE HOOK FOR KEY PRESSES
 	keyController.setHook(controller);
@@ -416,6 +409,13 @@ public class RegioVincoGame extends PointAndClickGame {
                             controller.processRegionClickRequest((int) e.getX(), (int) e.getY(),path);
                         buttonControl(getGamingMode());
 	});
+        
+                    Button stopButton = guiButtons.get(STOP_TYPE);
+                        stopButton.setOnAction(e->{
+                            if(stop()){
+                                isPlaying = false;
+                            }
+                    });
 	
 	// KILL THE APP IF THE USER CLOSES THE WINDOW
 	window.setOnCloseRequest(e->{
@@ -432,6 +432,7 @@ public class RegioVincoGame extends PointAndClickGame {
 	// IF THE WIN DIALOG IS VISIBLE, MAKE IT INVISIBLE
 	ImageView winView = guiImages.get(WIN_DISPLAY_TYPE);
 	winView.setVisible(false);
+        System.out.println("winview visible? "+winView.isVisible());
                     ImageView mapView = guiImages.get(MAP_TYPE);
                     mapView.setVisible(true);
                     labelLayer.setVisible(false);
@@ -439,7 +440,13 @@ public class RegioVincoGame extends PointAndClickGame {
 	// AND RESET ALL GAME DATA
                    // RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
                     //dataModel.setAdded(false);
-	data.reset(this);
+                    setGamingMode(GameMode.DISPLAY_MODE);
+                    buttonControl(getGamingMode());
+	//data.reset(this);
+                    data.beginGame();
+                    reloadMap(path.get(path.size()-1));
+                    ((RegioVincoDataModel)data).resetMapping(this, getGamingMode());
+                    ((RegioVincoDataModel)data).resetPinkRegions(this, path);
                     isPlaying = false;
                     end = false;
                     add = false;
@@ -470,6 +477,15 @@ public class RegioVincoGame extends PointAndClickGame {
 	// IF THE GAME IS OVER, DISPLAY THE APPROPRIATE RESPONSE
                    // System.out.println(data.getGameState());
                    RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
+                   if(isPlaying){
+                        if(dataModel.getRegionsFound() == dataModel.getSubRegionsNumber()){
+                            dataModel.endGameAsWin();
+                            setEndTime(System.currentTimeMillis());
+                            addLabels();
+                            setEnd(true);
+                            isPlaying = false;
+                        }
+                   }
 	if (data.won()) {
 	    ImageView winImage = guiImages.get(WIN_DISPLAY_TYPE);
 	    winImage.setVisible(true);
@@ -542,6 +558,7 @@ public class RegioVincoGame extends PointAndClickGame {
                         mapName.setVisible(true);
                         
                         String ancestor;
+                        ancestorList.clear();
                         //guiLayer.getChildren().remove(guiLayer.getChildren().size()-ancestorList.size(), guiLayer.getChildren().size());
                         for(int i = 0; i<path.size(); i++){
                             ancestorList.add(new Text());
@@ -555,7 +572,7 @@ public class RegioVincoGame extends PointAndClickGame {
                                     ancestorList.get(i).setVisible(true);  
                                     if (!guiLayer.getChildren().contains(ancestorList.get(i)))
                                         guiLayer.getChildren().add(ancestorList.get(i));
-                                    System.out.println("ancestorList in reloapMap: "+ancestorList.get(i).getText());
+                                    //System.out.println("ancestorList in reloapMap: "+ancestorList.size()+" "+ancestorList.get(i).getText());
                                 }
                                 else{
                                     ancestor = (" - "+path.get(i));
@@ -568,8 +585,11 @@ public class RegioVincoGame extends PointAndClickGame {
                                     if (!guiLayer.getChildren().contains(ancestorList.get(i)))
                                         guiLayer.getChildren().add(ancestorList.get(i));
                                  }
-                               // System.out.println("gui's children number before: "+guiLayer.getChildren().size());
+                                System.out.println("ancestorList in reloapMap: "+ancestorList.size()+" "+ancestorList.get(i).getText());
                                 ancestorList.get(i).setOnMouseClicked(e->{
+                                    System.out.println("game mode in reloapMap: "+gamingMode);
+                                    //if(gamingMode.equals(GameMode.DISPLAY_MODE));
+                                    if (!isPlaying)
                                         processClickOnAncestorNodeRequest((Text)e.getSource());
                                 });
                         }
@@ -646,6 +666,7 @@ public class RegioVincoGame extends PointAndClickGame {
                     String a = path.get(0);
                     path.clear();
                     path.add(a);
+                    //ancestorList.clear();
                     reloadFile(ancestorName.substring(3, ancestorName.length()));
                     reloadMap(ancestorName.substring(3, ancestorName.length()));
                      ((RegioVincoDataModel)data).resetRegion(this);
@@ -653,7 +674,7 @@ public class RegioVincoGame extends PointAndClickGame {
                      break;
                 } else{ // when clicked on the world
                      path.clear();
-                     ancestorList.clear();
+                     //ancestorList.clear();
                      reloadFile(ancestorName);
                      reloadMap(ancestorName);
                      ((RegioVincoDataModel)data).resetRegion(this);
@@ -721,7 +742,7 @@ public class RegioVincoGame extends PointAndClickGame {
                     la.setPrefSize(290, 50);
                    
                     la.setLayoutX(STACK_X);
-                    la.setLayoutY(150);
+                    la.setLayoutY(160);
                     la.setVisible(b);
                     la.setStyle("-fx-background-color: black");
                     
@@ -757,38 +778,51 @@ public class RegioVincoGame extends PointAndClickGame {
        Button leaderButton = guiButtons.get(LEADER_TYPE);
        Button flagButton = guiButtons.get(FLAG_TYPE);
        Button regionButton = guiButtons.get(REGION_TYPE);
+       Button stopButton = guiButtons.get(STOP_TYPE);
+       ImageView mapView = guiImages.get(MAP_TYPE);
        switch(mode){
            case DISPLAY_MODE: 
                if(path.size() < 2){
                    System.out.println("path's size checking in button control: "+path.size());
-                   regionButton.setDisable(false);
                    capitalButton.setDisable(true);
                    leaderButton.setDisable(true);
                    flagButton.setDisable(true);
+                   stopButton.setDisable(true);
                }
                else if(path.size() == 3){
                    capitalButton.setDisable(false);
-                   regionButton.setDisable(false);
                    leaderButton.setDisable(true);
                    flagButton.setDisable(true);
+                   stopButton.setDisable(true);
                }
                else{
                    capitalButton.setDisable(false);
-                   regionButton.setDisable(false);
                    leaderButton.setDisable(false);
                    flagButton.setDisable(false);
                }
-               regionButton.setDisable(false);
+                regionButton.setDisable(false);
                break;
            case REGION_MODE: case CAPITAL_MODE: case LEADER_MODE:
+               mapView.setDisable(false);
                helpButton.setDisable(true);
                regionButton.setDisable(true);
                capitalButton.setDisable(true);
                leaderButton.setDisable(true);
                flagButton.setDisable(true);
+               stopButton.setDisable(false);
+               for(int i = 0; i<ancestorList.size(); i++){
+                   ancestorList.get(i).setDisable(false);
+               }
                break;
            case STOP_MODE:
-               
+               mapView.setDisable(true);
+               helpButton.setDisable(true);
+               regionButton.setDisable(true);
+               capitalButton.setDisable(true);
+               leaderButton.setDisable(true);
+               flagButton.setDisable(true);
+               stopButton.setDisable(true);
+               break;
        }
    }
    
@@ -796,30 +830,31 @@ public class RegioVincoGame extends PointAndClickGame {
        splashLayer.setVisible(false);
        backgroundLayer.setVisible(true);
        gameLayer.setVisible(true);
-      // addGUIImage(gameLayer,WORLD_MAP_TYPE, loadImage(THE_WORLD_MAP), MAP_X, MAP_Y);
-       
-       //File worldFile = new File("TheWorldRegion.xml");
-       //Boolean  yeah = worldDataManager.load(THE_WORLD_REGION);
        File schema = new File(REGION_SCHEMA);
-       worldIO = new WorldIO(schema);
-       
+       worldIO = new WorldIO(schema);  
        worldDataManager.setWorldImporterExporter(worldIO);
-       //worldDataManager.setRoot(null);
        reloadFile("The World");
        reloadMap("The World");
-       guiLayer.setVisible(true);
-       //System.out.println("Loaded in enter game? "+yeah);
-      // System.out.println(worldDataManager.getAllRegions().isEmpty());
-       
+       guiLayer.setVisible(true);      
    }
 
-   public void stop(){
+   public boolean stop(){
+       GameMode currentMode = getGamingMode();
+       //setGamingMode(GameMode.STOP_MODE);
+       //buttonControl(getGamingMode());
        String selection = "";
        selection = confirmDialog.showYesNoCancel("STOP", "Are you sure you want to stop the game?");
-       if(selection == "YES"){
-           ((RegioVincoDataModel)data).stopMode();
+       if(selection == "Yes"){         
+           //System.out.println("ancestorList size in stop: "+ancestorList.size());
+               //processClickOnAncestorNodeRequest(ancestorList.get(ancestorList.size()-1));
+               reset();
+               gameLayer.getChildren().clear();
+               buttonControl(getGamingMode());
+               return true;
+       }else{
+           setGamingMode(currentMode);
+           buttonControl(getGamingMode());
+           return false;
        }
-           
    }
-   
 }
