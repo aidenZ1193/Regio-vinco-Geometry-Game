@@ -512,13 +512,12 @@ public class RegioVincoGame extends PointAndClickGame {
         WritableImage mapImage;
         Image tempImage;
         PixelReader pixelReader;
+        
         if(mapTable.containsKey(mapFile)){
             tempImage= mapTable.get(mapFile);
-          //Image image = tempMapImage.getImage();
             pixelReader = tempImage.getPixelReader();
             mapImage = new WritableImage(pixelReader, (int) tempImage.getWidth(), (int) tempImage.getHeight());
             tempMapImage.setImage(tempImage);
-           // path.add(mapFile);
          }
         else {
                     String mapFilePath = FILES_PATH;
@@ -597,17 +596,27 @@ public class RegioVincoGame extends PointAndClickGame {
     public void reloadFlag(String flagFile){
         
     }
+    // this method is used to load file and flags. Check what to load before actually loading it.
     public void loadAndPut(String regionName, String filePath){
         WorldDataManager maner = new WorldDataManager();
-        if(regionTable.containsKey(regionName)){
-            return;
-        } else{
-            maner.setWorldImporterExporter(worldIO);
-            maner.load(filePath);
-            regionTable.put(regionName, maner);
-            maner.setRoot(new Region(regionName,null,null,null,null,null));
+        if(!filePath.contains("flag")){
+            if(regionTable.containsKey(regionName)){
+                return;
+            } else{
+                maner.setWorldImporterExporter(worldIO);
+                maner.load(filePath);
+                regionTable.put(regionName, maner);
+                maner.setRoot(new Region(regionName,null,null,null,null,null));
+            }
+        } else {
+            if(flagTable.containsKey(regionName)){
+                return;
+            } else {
+                Image flag = loadImage(filePath);
+                flagTable.put(regionName, flag);
+            }
+            }
         }
-    }
    // this method if for load region xml files. If file already exist in hash map, then use file name
    // as  key to change xml. Else load and put new file in hash map.
     public boolean reloadFile(String regionName){
