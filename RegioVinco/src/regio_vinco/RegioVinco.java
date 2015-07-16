@@ -39,6 +39,9 @@ public class RegioVinco extends Application {
     public static final String HELP_BUTTON_PATH = GUI_PATH+"RegioVincoHelpButton.png";
     public static final String SETTING_BUTTON_PATH = GUI_PATH+"RegioVincoSettingButton.png";
     
+    public static final String MUSIC_MUTE_BUTTON_PATH = GUI_PATH+"RegioVincoMusicButton.png";
+    public static final String SOUND_MUTE_BUTTON_PATH = GUI_PATH+"RegioVincoSoundButton.png";
+    
     public static final String REGION_BUTTON_PATH = GUI_PATH+"RegioVincoRegionButton.png";
     public static final String CAPITAL_BUTTON_PATH = GUI_PATH+"RegioVincoCapitalButton.png";
     public static final String FLAG_BUTTON_PATH = GUI_PATH+"RegioVincoFlagButton.png";
@@ -55,6 +58,8 @@ public class RegioVinco extends Application {
     public static final String EXIT_BUTTON_MO_FILE_PATH = GUI_PATH + "RegioVincoExitButtonMouseOver.png";
     public static final String SUB_REGION_FILE_PATH = GUI_PATH + "RegioVincoSubRegion.png";
     public static final String WIN_DISPLAY_FILE_PATH = GUI_PATH + "RegioVincoWinDisplay.png";
+    
+    public static final String GAME_RECORD_PATH = "./data/Game Record.txt";
     
    // public static final String MAPS_PATH = "./data/The World/";
     public static final String FILES_PATH = "./data/";
@@ -87,8 +92,14 @@ public class RegioVinco extends Application {
     public static final int HELP_Y= 50;
     public static final int SETTING_X=1080;
     public static final int SETTING_Y= 50;
-   // public static final int RETURN_X = 1080;
-    //public static final int RETURN_Y = 5;
+    
+    // mute buttons in setting
+    public static final String MUSIC_TYPE = "MUSIC_TYPE";
+    public static final String SOUND_TYPE = "SOUND_TYPE";
+    public static final int MUSIC_X = 400;
+    public static final int MUSIC_Y = 400;
+    public static final int SOUND_X = 800;
+    public static final int SOUND_Y = 400;
     
     // TITLE IMAGE
     public static final String TITLE_TYPE = "TITLE_TYPE";

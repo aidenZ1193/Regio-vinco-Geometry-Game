@@ -2,11 +2,14 @@ package regio_vinco;
 
 import audio_manager.AudioManager;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -19,6 +22,10 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiUnavailableException;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import pacg.PointAndClickGame;
 import pacg.PointAndClickGameDataModel;
 import static regio_vinco.RegioVinco.*;
@@ -62,7 +69,12 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
     private int wrong = 0;
     private long start;
     private boolean added = false;
+    private boolean hasCapitalMode = false;
+    private boolean hasLeaderMode = false;
     private boolean hasFlagMode = false;
+    
+    private boolean soundEffect = true;
+    private boolean musicEffect = true;
     
     private WorldDataManager worldDataManager;
    // private Font font = new Font("Verdana", Font.BOLD, 12);
@@ -90,7 +102,10 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
     }
 // I changed the return type to boolean from void
     public void removeAllButOneFromeStack(RegioVincoGame game) {
-        redSubRegions.clear();
+        if(game.getGamingMode().equals(GameMode.DISPLAY_MODE))
+            return;
+        else{
+            redSubRegions.clear();
 	while (subRegionStack.size() > 1) {
 	    MovableText text = subRegionStack.removeFirst();
                        game.getGameLayer().getChildren().remove(text.getLabel());
@@ -107,6 +122,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                    subRegionStack.peek().getLabel().setStyle("-fx-background-color: green");
                    subRegionStack.peek().getText().setFill(Color.RED);
 	startTextStackMovingDown();
+        }
     }
 
     public int getWrong(){
@@ -172,6 +188,30 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 
     public void setWorldDataManager(WorldDataManager worldDataManager) {
         this.worldDataManager = worldDataManager;
+    }
+
+    public boolean isHasCapitalMode() {
+        return hasCapitalMode;
+    }
+
+    public void setHasCapitalMode(boolean hasCapitalMode) {
+        this.hasCapitalMode = hasCapitalMode;
+    }
+
+    public boolean isHasLeaderMode() {
+        return hasLeaderMode;
+    }
+
+    public void setHasLeaderMode(boolean hasLeaderMode) {
+        this.hasLeaderMode = hasLeaderMode;
+    }
+
+    public boolean isHasFlagMode() {
+        return hasFlagMode;
+    }
+
+    public void setHasFlagMode(boolean hasFlagMode) {
+        this.hasFlagMode = hasFlagMode;
     }
 
     
@@ -252,7 +292,8 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                         return;
                     clickedSubRegion = colorToSubRegionMappings.get(pixelColor);
                     if(clickedFlag.equals(subRegionStack.get(0).getImage())){
-                        game.getAudio().play(SUCCESS, false);
+                        if(soundEffect)
+                            game.getAudio().play(SUCCESS, false);
                         changeSubRegionColorOnMap(game, subRegionStack.get(0).getText().getText(), Color.GREEN);
                         for (String s : redSubRegions) {
 		Color subRegionColor =subRegionToColorMappings.get(s);
@@ -270,6 +311,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                         } else {
                                 if ((!redSubRegions.contains(subRegionStack.get(0).getText().getText()))) {
 		// BOO WRONG ANSWER
+                                    if(soundEffect)
 		game.getAudio().play(FAILURE, false);
 
 		// TURN THE TERRITORY TEMPORARILY RED
@@ -288,7 +330,8 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                             }
                             if (clickedSubRegion.equals(subRegionStack.get(0).getText().getText())) {
                              // YAY, CORRECT ANSWER
-                                game.getAudio().play(SUCCESS, false);
+                                if(soundEffect)
+                                    game.getAudio().play(SUCCESS, false);
 
                              // TURN THE TERRITORY GREEN
                                 changeSubRegionColorOnMap(game, clickedSubRegion, Color.GREEN);
@@ -304,6 +347,7 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                             } else {
                                 //if ((!redSubRegions.contains(clickedSubRegion))) {
 		// BOO WRONG ANSWER
+                                if(soundEffect)
 		game.getAudio().play(FAILURE, false);
 
 		// TURN THE TERRITORY TEMPORARILY RED
@@ -319,16 +363,58 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                             subRegionStack.peek().getLabel().setStyle("-fx-background-color: green");
                             subRegionStack.peek().getText().setFill(Color.RED);
                         }
-                        else
-                            return;
-	    if (subRegionStack.isEmpty()) {
-		this.endGameAsWin();
-		game.getAudio().stop(TRACKED_SONG);
-		game.getAudio().play(AFGHAN_ANTHEM, false);
-                       } 
-        }
+
+                if (subRegionStack.isEmpty()) {
+                    System.out.println("is game win? "+subRegionStack.isEmpty());
+                        this.endGameAsWin();
+                        playAnthem(game);
+                }
+    }
     
-    public void respondToRegionSelection(RegioVincoGame game, int x, int y, ArrayList<String> path){
+    public void playAnthem(RegioVincoGame game){
+                        String songFilePath = FILES_PATH;
+                        String regionName = getRegionName();
+                        ArrayList<String> path = game.getPath();
+                        AudioManager audio = game.getAudio();
+                        for(int i = 0; i<path.size(); i++){
+                            songFilePath+= path.get(i)+"/";
+                            //System.out.println("folder path loop in pink region: "+path.get(i));
+                        }
+                        System.out.println("regionName using in respond: "+regionName);
+                        if(!regionName.equals(getWorldDataManager().getWorld().getName())) {
+                            songFilePath += (regionName+"/"+regionName+" National Anthem.mid");
+                             System.out.println("loading in try in respond: "+songFilePath);
+                        } else {
+                            songFilePath += (regionName+" National Anthem.mid");
+                            System.out.println("loading in try in respond: "+songFilePath);
+                        }
+                try {
+                    File song = new File(songFilePath);
+                    if(song.exists())
+                        audio.loadAudio(regionName, songFilePath);
+                    else 
+                        return;
+                    System.out.println("loading in try in respond: "+songFilePath);
+                } catch (UnsupportedAudioFileException ex) {
+                    Logger.getLogger(RegioVincoGame.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(RegioVincoGame.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (LineUnavailableException ex) {
+                    Logger.getLogger(RegioVincoGame.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (InvalidMidiDataException ex) {
+                    Logger.getLogger(RegioVincoGame.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (MidiUnavailableException ex) {
+                    Logger.getLogger(RegioVincoGame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+                        if(!audio.isPlaying(regionName)){
+                        audio.stop(BACKGROUND_SONG);
+                        audio.play(regionName, true);
+                       // isPlayed = true;
+                        }          
+    }
+    
+    public void respondToRegionSelection(RegioVincoGame game, int x, int y, ArrayList<String> path) throws UnsupportedAudioFileException{
                    Color pixelColor = mapPixelReader.getColor(x, y);
 	String clickedSubRegion = colorToSubRegionMappings.get(pixelColor);
          if ((clickedSubRegion == null)) {
@@ -339,8 +425,28 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                     game.reloadMap(clickedSubRegion);
                     resetRegion(game);
                     resetPinkRegions(game,path);
+                    checkMode(game);
     }
     
+    public void checkMode(RegioVincoGame game){
+        for(Region re: worldDataManager.getAllRegions()){
+            if(!re.getName().equals(worldDataManager.getWorld().getName())){
+                if(re.getCapital()!=null)
+                    hasCapitalMode = true;
+                else
+                    hasCapitalMode = false;
+                if(re.getLeader()!=null)
+                    hasLeaderMode = true;
+                else
+                    hasLeaderMode = false;
+                if(game.getFlagTable().containsKey(re.getName()))
+                    hasFlagMode = true;
+                else
+                    hasFlagMode = false;
+            } else
+                continue;
+        }
+    }
     public Image getFlagForRegion(RegioVincoGame game, int x, int y){
                 Color pixelColor = mapPixelReader.getColor(x, y);
                 String clickedSubRegion = colorToSubRegionMappings.get(pixelColor);
@@ -371,12 +477,13 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	return colorToSubRegionMappings.keySet().size();
     }
 
-    public void enter(RegioVincoGame game){
+    public void enter(RegioVincoGame game) throws UnsupportedAudioFileException{
         game.enterGame();
        ArrayList<String> a = new ArrayList();
        a.add("The World");
         resetRegion(game);
         resetPinkRegions(game, a);
+        checkMode(game);
     }
     
     public void resetMapping(RegioVincoGame game, GameMode mode){
@@ -417,13 +524,12 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                          else if (game.getGamingMode().equals((GameMode.FLAG_MODE)))
                              continue;
                          else{
-                   System.out.println("wrong place in resetMapping.");
                             colorToSubRegionMappings.put(makeColor(red,green,blue), key);
                             subRegionToColorMappings.put(key, makeColor(red,green,blue));
                             changeSubRegionColorOnMap(game, re.getName(),makeColor(red,green,blue));
                          }
                     }
-                }
+                }       
     }
     
     public void resetRegion(RegioVincoGame game){
@@ -437,11 +543,9 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	pixels = new HashMap();
                     
                     Region root = worldDataManager.getWorld();
-                    //System.out.println("root from data manager's getWorld: "+root.getName());
                     regionName = root.getName();
 	for (Region re : worldDataManager.getAllRegions()) {
 	    if(!re.getName().equals(regionName)){
-                                //System.out.println("names in reset region: "+re.getName());
                                 int red = Integer.valueOf(re.getRed());
                                 int green = Integer.valueOf(re.getGreen());
                                 int blue = Integer.valueOf(re.getBlue());
@@ -464,19 +568,18 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
 	    }
 	}
     }
-    public void resetPinkRegions(RegioVincoGame game, ArrayList<String>path){
+    public void resetPinkRegions(RegioVincoGame game, ArrayList<String>path) throws UnsupportedAudioFileException{
 
         for(Region re: worldDataManager.getAllRegions()){
              String filePath = FILES_PATH;
              String flagPath = "";
+             String anthemPath = "";
               for(int i = 0; i<path.size(); i++){
                    filePath+= path.get(i)+"/";
-                            //System.out.println("folder path loop in pink region: "+path.get(i));
                }
             if(!re.getName().equals(worldDataManager.getWorld().getName())) {
                     flagPath += (filePath+re.getName()+"/"+re.getName()+" Flag.png");
-                    filePath += (re.getName()+"/"+re.getName()+" Data.xml");           
-                    //System.out.println("region fie path in change color: "+filePath);
+                    filePath += (re.getName()+"/"+re.getName()+" Data.xml");      
             }else{
                 flagPath += (filePath+re.getName()+" Flag.png");
                 filePath += (re.getName()+" Data.xml");
@@ -488,11 +591,10 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                          game.loadAndPut(re.getName(),filePath);
                      }
                         else{
-                         System.out.println("region name in change color: "+re.getName());
                             changeSubRegionColorOnMap(game, re.getName(),Color.PINK);
                      } 
-              //System.out.println("Flag path in data's reset pink region: "+flagPath);
                      game.loadAndPut(re.getName(), flagPath);
+                  //   game.loadAndPut(re.getName(), anthemPath);
         }
     }
     
@@ -535,12 +637,10 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                         node.setFill(Color.YELLOW);
                         la.setGraphic(node);
                         guiLayer.getChildren().add(la);
-             System.out.println("if color mapping in reset is empty: "+colorToSubRegionMappings.isEmpty());
-             
+
                 if(!((RegioVincoGame)game).getGamingMode().equals(GameMode.FLAG_MODE)){
 	for (Color c : colorToSubRegionMappings.keySet()) {
 	    String subRegion = colorToSubRegionMappings.get(c);
-            System.out.println("subRegion in colorMapping in data's reset: "+subRegion);
 	    subRegionToColorMappings.put(subRegion, c);
 	    Text textNode = new Text(subRegion);
             // changed my text font
@@ -562,7 +662,6 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                        for(Color c: colorToFlagImageMappings.keySet()){
                            Image regionFlag = colorToFlagImageMappings.get(c);
                            Text textNode = new Text(colorToSubRegionMappings.get(c));
-                  System.out.println("textNode text in data's reset: "+colorToSubRegionMappings.get(c));
                            MovableText flagText = new MovableText(textNode);
                            flagText.setImage(regionFlag);
                            flagText.getLabel().setLayoutX(STACK_X);
@@ -573,8 +672,10 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                            subRegionStack.add(flagText);
                        }
                    }
-                    subRegionsNumber = subRegionStack.size();
-           System.out.println("subRegionStack size in reset: "+subRegionStack.size());
+                    subRegionsNumber = subRegionStack.size();   
+                    if(subRegionsNumber == 0)
+                        return;
+           //System.out.println("subRegionStack size in reset: "+subRegionStack.size());
 	Collections.shuffle(subRegionStack);
                    subRegionStack.peek().getLabel().setStyle("-fx-background-color: green");
                    subRegionStack.peek().getText().setFill(Color.RED);
@@ -679,6 +780,29 @@ public class RegioVincoDataModel extends PointAndClickGameDataModel {
                         getRegionNotFound().setVisible(true);
                         getWrongGuess().setVisible(true);
                     }
+    }
+    
+    public void muteSound(){
+        if(soundEffect)
+            soundEffect = false;
+        else
+            soundEffect = true;
+    }
+    public void muteMusic(RegioVincoGame game, String regionName){
+        AudioManager audio = game.getAudio();
+        if(musicEffect){
+            if(audio.isPlaying(BACKGROUND_SONG))
+                audio.stop(BACKGROUND_SONG);
+            else if(audio.isPlaying(regionName))
+                audio.stop(regionName);
+            musicEffect = false;
+        } else{
+            if(!audio.isPlaying(BACKGROUND_SONG))
+                audio.play(BACKGROUND_SONG,true);
+            else if(!audio.isPlaying(regionName))
+                audio.play(regionName,true);
+            musicEffect = true;
+        }
     }
     // STATE TESTING METHODS
     // UPDATE METHODS

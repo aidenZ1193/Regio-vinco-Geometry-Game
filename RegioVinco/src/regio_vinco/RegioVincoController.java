@@ -5,6 +5,7 @@ import java.util.HashMap;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import pacg.KeyPressHook;
 
 /**
@@ -17,7 +18,7 @@ public class RegioVincoController implements KeyPressHook {
 	game = initGame;
     }
     
-    public void processEnterGameRequest(){
+    public void processEnterGameRequest() throws UnsupportedAudioFileException{
                     //game.enterGame();
                ((RegioVincoDataModel)game.getDataModel()).enter(game);
     }
@@ -32,12 +33,21 @@ public class RegioVincoController implements KeyPressHook {
   //                  game.getGuiLayer().setVisible(false);
     }
     
+    public void processMuteSoundRequest(){
+                    ((RegioVincoDataModel)game.getDataModel()).muteSound();
+    }
+    public void processMuteMusicRequest(){
+        System.out.println("regionName get in controller: "+ ((RegioVincoDataModel)game.getDataModel()).getWorldDataManager().getWorld().getName());
+                    ((RegioVincoDataModel)game.getDataModel()).muteMusic(game, 
+                            ((RegioVincoDataModel)game.getDataModel()).getWorldDataManager().getWorld().getName());
+    }
+    
     public void processReturnRequest(){
                     game.setLayerToVisible("return");
   //                  game.getGuiLayer().setVisible(true);
     }
     
-    public void processStopRequest(){
+    public void processStopRequest() throws UnsupportedAudioFileException{
                     game.stop();
     }
     public void processStartGameRequest() {
@@ -52,12 +62,12 @@ public class RegioVincoController implements KeyPressHook {
 	((RegioVincoDataModel)game.getDataModel()).respondToMapSelection(game, x, y);
     }
     
-    public void processRegionClickRequest(int x, int y,ArrayList<String> path){
+    public void processRegionClickRequest(int x, int y,ArrayList<String> path) throws UnsupportedAudioFileException{
                     ((RegioVincoDataModel)game.getDataModel()).respondToRegionSelection(game,x,y,path);
     }
     
     public void processMouseOverFlag(int x, int y, HashMap<String, Image>table){
-                    
+                    game.processMouseOverRegion(x, y);
     }
         
     @Override
