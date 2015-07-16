@@ -167,6 +167,15 @@ public class RegioVincoGame extends PointAndClickGame {
     public void changeGameMode(GameMode mode){
         gamingMode = mode;
     }
+
+    public HashMap<String, Image> getFlagTable() {
+        return flagTable;
+    }
+
+    public void setFlagTable(HashMap<String, Image> flagTable) {
+        this.flagTable = flagTable;
+    }
+    
     /**
      * Initializes audio for the game.
      */
@@ -232,7 +241,6 @@ public class RegioVincoGame extends PointAndClickGame {
                     helpLayer = new Pane();
                     helpLayer.setVisible(false);
                     stackPane.getChildren().add(helpLayer);  
-//                    addStackPaneLayer(helpLayer);
                     addGUIButton(helpLayer, SETTING_TYPE+"help", loadImage(SETTING_BUTTON_PATH), SETTING_X, SETTING_Y);
                     addGUIButton(helpLayer, RETURN_TO_MAP_TYPE+"help", loadImage(RETURN_BUTTON_PATH), HELP_X, HELP_Y);
                     helpLayer.setStyle("-fx-background-color: red");
@@ -316,6 +324,13 @@ public class RegioVincoGame extends PointAndClickGame {
                     addGUIButton(guiLayer, LEADER_TYPE, loadImage(LEADER_BUTTON_PATH), LEADER_X, LEADER_Y);
                     addGUIButton(guiLayer, STOP_TYPE, loadImage(STOP_BUTTON_PATH), STOP_X, STOP_Y);
                     
+                    // for flag display
+                    ImageView flagView = new ImageView();
+	flagView.setX(900);
+	flagView.setY(500);
+	guiImages.put(FLAG_DISPLAY_TYPE, flagView);
+	guiLayer.getChildren().add(flagView);
+                    
     }
     
     // HELPER METHOD FOR LOADING IMAGES
@@ -398,6 +413,14 @@ public class RegioVincoGame extends PointAndClickGame {
                       buttonControl(getGamingMode());
                       isPlaying = true;
                   });
+                  
+                  Button flagButton = guiButtons.get(FLAG_TYPE);
+                  flagButton.setOnAction(e->{
+                      setGamingMode(GameMode.FLAG_MODE);
+                      ((RegioVincoDataModel)data).reset(this);
+                      buttonControl(getGamingMode());
+                      isPlaying = true;
+                  });
 
 	// SETUP MOUSE PRESSES ON THE MAP
 	ImageView mapView = guiImages.get(MAP_TYPE);
@@ -409,6 +432,11 @@ public class RegioVincoGame extends PointAndClickGame {
                             controller.processRegionClickRequest((int) e.getX(), (int) e.getY(),path);
                         buttonControl(getGamingMode());
 	});
+        
+                    mapView.setOnMouseMoved(e->{
+                        if(!isPlaying)
+                            controller.processMouseOverFlag((int) e.getX(), (int) e.getY(),flagTable);
+                    });
         
                     Button stopButton = guiButtons.get(STOP_TYPE);
                         stopButton.setOnAction(e->{
@@ -599,7 +627,7 @@ public class RegioVincoGame extends PointAndClickGame {
     // this method is used to load file and flags. Check what to load before actually loading it.
     public void loadAndPut(String regionName, String filePath){
         WorldDataManager maner = new WorldDataManager();
-        if(!filePath.contains("flag")){
+        if(!filePath.contains("Flag")){
             if(regionTable.containsKey(regionName)){
                 return;
             } else{
@@ -612,11 +640,16 @@ public class RegioVincoGame extends PointAndClickGame {
             if(flagTable.containsKey(regionName)){
                 return;
             } else {
-                Image flag = loadImage(filePath);
-                flagTable.put(regionName, flag);
-            }
+                File flagFile = new File(filePath);
+                Image flag;
+                if(flagFile.exists()){
+                    flag = loadImage(filePath);
+                    flagTable.put(regionName, flag);
+                }else
+                    System.out.println("Flag of "+regionName+" does not exist.");
             }
         }
+    }
    // this method if for load region xml files. If file already exist in hash map, then use file name
    // as  key to change xml. Else load and put new file in hash map.
     public boolean reloadFile(String regionName){
@@ -640,11 +673,8 @@ public class RegioVincoGame extends PointAndClickGame {
                         filePath += regionName+"/";
                         //path.add(regionName);
                     } else {
-//                        path.add(regionName);
-                        //ancestorList.add(new Text());
                         for(int i = 0; i<path.size(); i++){
                             filePath+= path.get(i)+"/";
-                            //System.out.println("filePath loop in reloa file: "+filePath);
                         }
                         filePath += (regionName+"/");
                     }     
@@ -700,7 +730,12 @@ public class RegioVincoGame extends PointAndClickGame {
         buttonControl(getGamingMode());       
     }
     
-    public void addLabels(){
+    public void processMouseOverRegion(int x, int y){
+        RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
+        dataModel.getFlagForRegion(this, x, y);
+    }
+    
+     public void addLabels(){
         RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
 
                         time.setLayoutX(70);//380);
@@ -749,7 +784,6 @@ public class RegioVincoGame extends PointAndClickGame {
        Label la = new Label();
        guiLayer.getChildren().add(la);
                     la.setPrefSize(290, 50);
-                   
                     la.setLayoutX(STACK_X);
                     la.setLayoutY(160);
                     la.setVisible(b);
@@ -811,7 +845,7 @@ public class RegioVincoGame extends PointAndClickGame {
                }
                 regionButton.setDisable(false);
                break;
-           case REGION_MODE: case CAPITAL_MODE: case LEADER_MODE:
+           case REGION_MODE: case CAPITAL_MODE: case LEADER_MODE: case FLAG_MODE:
                mapView.setDisable(false);
                helpButton.setDisable(true);
                regionButton.setDisable(true);
@@ -822,7 +856,7 @@ public class RegioVincoGame extends PointAndClickGame {
                for(int i = 0; i<ancestorList.size(); i++){
                    ancestorList.get(i).setDisable(false);
                }
-               break;
+               break;               
            case STOP_MODE:
                mapView.setDisable(true);
                helpButton.setDisable(true);
@@ -854,10 +888,9 @@ public class RegioVincoGame extends PointAndClickGame {
        String selection = "";
        selection = confirmDialog.showYesNoCancel("STOP", "Are you sure you want to stop the game?");
        if(selection == "Yes"){         
-           //System.out.println("ancestorList size in stop: "+ancestorList.size());
-               //processClickOnAncestorNodeRequest(ancestorList.get(ancestorList.size()-1));
                reset();
                gameLayer.getChildren().clear();
+               setGamingMode(DISPLAY_MODE);
                buttonControl(getGamingMode());
                return true;
        }else{

@@ -133,6 +133,8 @@ public class RegioVinco extends Application {
     public static final int MAP_X = 0;
     public static final int MAP_Y = 0;
     
+    public static final String FLAG_DISPLAY_TYPE = "FLAG_DISPLAY_TYPE";
+    
     public static final String WORLD_MAP_TYPE = "WORLD_MAP_TYPE";
 
     // THE WIN DIALOG
