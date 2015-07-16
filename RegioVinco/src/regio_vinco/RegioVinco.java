@@ -58,7 +58,7 @@ public class RegioVinco extends Application {
     public static final String EXIT_BUTTON_MO_FILE_PATH = GUI_PATH + "RegioVincoExitButtonMouseOver.png";
     public static final String SUB_REGION_FILE_PATH = GUI_PATH + "RegioVincoSubRegion.png";
     public static final String WIN_DISPLAY_FILE_PATH = GUI_PATH + "RegioVincoWinDisplay.png";
-    
+    // .data/G..
     public static final String GAME_RECORD_PATH = "./data/Game Record.txt";
     
    // public static final String MAPS_PATH = "./data/The World/";

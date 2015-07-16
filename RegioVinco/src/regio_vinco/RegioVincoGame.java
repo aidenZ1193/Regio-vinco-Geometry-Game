@@ -1,9 +1,13 @@
 package regio_vinco;
 
 import audio_manager.AudioManager;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -73,6 +77,12 @@ public class RegioVincoGame extends PointAndClickGame {
                 Text guesses;// = new Text();
                 Text score;// = new Text();
                 Label flag;
+                
+                Text shortTime;
+                Text reName;
+                Text lessGuesses;
+                Text highScore;         
+                Text noRecord;
     boolean add = false;
     boolean end = false;
     boolean isPlaying = false;
@@ -174,6 +184,7 @@ public class RegioVincoGame extends PointAndClickGame {
 
     public void setGamingMode(GameMode gamingMode) {
         this.gamingMode = gamingMode;
+        start = System.currentTimeMillis();
     }
 
     public void setIsPlaying(boolean isPlaying) {
@@ -319,8 +330,7 @@ public class RegioVincoGame extends PointAndClickGame {
                     addStackPaneLayer(labelLayer);
                     labelLayer.setLayoutX(350);
                     labelLayer.setLayoutY(200);
-                //   labelLayer.setVisible(false);
-                    labelLayer.setVisible(true);
+                   labelLayer.setVisible(false);
                     time = new Text();//dataModel.getTimer();
                    region = new Text();
                    subRegions = new Text();
@@ -356,6 +366,18 @@ public class RegioVincoGame extends PointAndClickGame {
 	flagView.setY(500);
 	guiImages.put(FLAG_DISPLAY_TYPE, flagView);
 	guiLayer.getChildren().add(flagView);
+        
+                   shortTime = new Text();//dataModel.getTimer();
+                   reName = new Text();
+                   lessGuesses = new Text();
+                   highScore = new Text();
+                   noRecord = new Text();
+                   
+                             guiLayer.getChildren().add(shortTime);
+                             guiLayer.getChildren().add(reName);
+                             guiLayer.getChildren().add(highScore);
+                             guiLayer.getChildren().add(lessGuesses);
+                             guiLayer.getChildren().add(noRecord);
                     
     }
     
@@ -374,14 +396,13 @@ public class RegioVincoGame extends PointAndClickGame {
         
                     Button enterButton = guiButtons.get(ENTER_TYPE);
                     enterButton.setOnAction(e->{
-            try {
-                controller.processEnterGameRequest();
-                // System.out.println("enter button's id: "+enterButton.getId());
-            } catch (UnsupportedAudioFileException ex) {
-                Logger.getLogger(RegioVincoGame.class.getName()).log(Level.SEVERE, null, ex);
-            }
+                    try {
+                        controller.processEnterGameRequest();
+                    } catch (UnsupportedAudioFileException ex) {
+                        Logger.getLogger(RegioVincoGame.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     });
-                    
+
                     Button helpButton = guiButtons.get(HELP_TYPE);
                     helpButton.setOnAction(e->{
                         controller.processHelpRequest();
@@ -425,6 +446,12 @@ public class RegioVincoGame extends PointAndClickGame {
                     Button returnButton3 = guiButtons.get(RETURN_TO_MAP_TYPE+"win");
                     returnButton3.setOnAction(e->{
                         reset();
+                        checkHighScore();
+            try {
+                saveFile();
+            } catch (IOException ex) {
+                Logger.getLogger(RegioVincoGame.class.getName()).log(Level.SEVERE, null, ex);
+            }
                     });
                    
 	// MAKE THE CONTROLLER THE HOOK FOR KEY PRESSES
@@ -433,6 +460,11 @@ public class RegioVincoGame extends PointAndClickGame {
                   Button regionButton = guiButtons.get(REGION_TYPE);
                   regionButton.setOnAction(e->{
                       setGamingMode(GameMode.REGION_MODE);
+                      noRecord.setVisible(false);
+                      shortTime.setVisible(false);
+                    lessGuesses.setVisible(false);
+                    highScore.setVisible(false);
+                    reName.setVisible(false);
                       ((RegioVincoDataModel)data).reset(this);
                       buttonControl(getGamingMode());
                       isPlaying = true;
@@ -441,6 +473,11 @@ public class RegioVincoGame extends PointAndClickGame {
                   Button capitalButton = guiButtons.get(CAPITAL_TYPE);
                   capitalButton.setOnAction(e->{
                       setGamingMode(GameMode.CAPITAL_MODE);
+                      noRecord.setVisible(false);
+                      shortTime.setVisible(false);
+                    lessGuesses.setVisible(false);
+                    highScore.setVisible(false);
+                    reName.setVisible(false);
                       ((RegioVincoDataModel)data).reset(this);
                       buttonControl(getGamingMode());
                       isPlaying = true;
@@ -449,6 +486,11 @@ public class RegioVincoGame extends PointAndClickGame {
                   Button leaderButton = guiButtons.get(LEADER_TYPE);
                   leaderButton.setOnAction(e->{
                       setGamingMode(GameMode.LEADER_MODE);
+                      noRecord.setVisible(false);
+                      shortTime.setVisible(false);
+                    lessGuesses.setVisible(false);
+                    highScore.setVisible(false);
+                    reName.setVisible(false);
                       ((RegioVincoDataModel)data).reset(this);
                       buttonControl(getGamingMode());
                       isPlaying = true;
@@ -457,6 +499,11 @@ public class RegioVincoGame extends PointAndClickGame {
                   Button flagButton = guiButtons.get(FLAG_TYPE);
                   flagButton.setOnAction(e->{
                       setGamingMode(GameMode.FLAG_MODE);
+                      noRecord.setVisible(false);
+                      shortTime.setVisible(false);
+                    lessGuesses.setVisible(false);
+                    highScore.setVisible(false);
+                    reName.setVisible(false);
                       ((RegioVincoDataModel)data).reset(this);
                       buttonControl(getGamingMode());
                       isPlaying = true;
@@ -464,8 +511,8 @@ public class RegioVincoGame extends PointAndClickGame {
 
 	// SETUP MOUSE PRESSES ON THE MAP
 	ImageView mapView = guiImages.get(MAP_TYPE);
-                   //System.out.println("get map view?"+mapView2.toString());
 	mapView.setOnMousePressed(e -> {
+                        noRecord.setVisible(false);
                         if(isPlaying)
                             controller.processMapClickRequest((int) e.getX(), (int) e.getY());
                         else
@@ -478,7 +525,7 @@ public class RegioVincoGame extends PointAndClickGame {
 	});
         
                     mapView.setOnMouseMoved(e->{
-                        if(!isPlaying)
+                        if(getGamingMode().equals(GameMode.DISPLAY_MODE))
                             controller.processMouseOverFlag((int) e.getX(), (int) e.getY(),flagTable);
                     });
         
@@ -507,7 +554,6 @@ public class RegioVincoGame extends PointAndClickGame {
 	// IF THE WIN DIALOG IS VISIBLE, MAKE IT INVISIBLE
 	ImageView winView = guiImages.get(WIN_DISPLAY_TYPE);
 	winView.setVisible(false);
-        System.out.println("winview visible? "+winView.isVisible());
                     ImageView mapView = guiImages.get(MAP_TYPE);
                     mapView.setVisible(true);
                     labelLayer.setVisible(false);
@@ -527,14 +573,12 @@ public class RegioVincoGame extends PointAndClickGame {
         }
         RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
         String regionName = dataModel.getRegionName();
-        System.out.println("regionName get in reset: "+regionName);
                     isPlaying = false;
                     end = false;
                     add = false;
                  if(audio.isPlaying(BACKGROUND_SONG))
                     return;
                  else{
-                     System.out.println("is not playing viva. In reset");
                      audio.stop(regionName);
                      audio.play(BACKGROUND_SONG, true);
                  }
@@ -605,13 +649,11 @@ public class RegioVincoGame extends PointAndClickGame {
                             mapFilePath+= path.get(i)+"/";
                         }
                     mapFilePath += (mapFile+" Map.png");
-                    System.out.println("map file path in reload map: "+mapFilePath);
                     File file = new File(mapFilePath);
 	tempImage = loadImage(mapFilePath);
 	pixelReader = tempImage.getPixelReader();
 	mapImage = new WritableImage(pixelReader, (int) tempImage.getWidth(), (int) tempImage.getHeight());
         }
-        System.out.println("path's size and last element: "+path.size()+" "+path.get(path.size()-1));
         for(int i = 0; i<mapImage.getWidth();i++){
                         for(int j = 0; j<mapImage.getHeight();j++){
                             Color c = pixelReader.getColor(i, j);
@@ -649,7 +691,6 @@ public class RegioVincoGame extends PointAndClickGame {
                                     ancestorList.get(i).setVisible(true);  
                                     if (!guiLayer.getChildren().contains(ancestorList.get(i)))
                                         guiLayer.getChildren().add(ancestorList.get(i));
-                                    //System.out.println("ancestorList in reloapMap: "+ancestorList.size()+" "+ancestorList.get(i).getText());
                                 }
                                 else{
                                     ancestor = (" - "+path.get(i));
@@ -662,7 +703,6 @@ public class RegioVincoGame extends PointAndClickGame {
                                     if (!guiLayer.getChildren().contains(ancestorList.get(i)))
                                         guiLayer.getChildren().add(ancestorList.get(i));
                                  }
-                                //System.out.println("ancestorList in reloapMap: "+ancestorList.size()+" "+ancestorList.get(i).getText());
                                 ancestorList.get(i).setOnMouseClicked(e->{
                                     if (!isPlaying)
                                         try {
@@ -730,9 +770,7 @@ public class RegioVincoGame extends PointAndClickGame {
                     filePath += (regionName+" Data.xml");
             File toLoad = new File(filePath);
             maner.setWorldImporterExporter(worldIO);
-            //System.out.println("file path in reload file: "+filePath);
             yeah = maner.load(filePath);
-            //System.out.println("file loaded in reloadFile? "+yeah);
             if(yeah == true){
                 path.add(regionName);
                 regionTable.put(regionName, maner);
@@ -786,7 +824,65 @@ public class RegioVincoGame extends PointAndClickGame {
         ImageView flagView = guiImages.get(FLAG_DISPLAY_TYPE);
         flagView.setImage(flag);
         
-        addLabels();
+        noRecord.setVisible(false);
+        String name = dataModel.getRegionName(this, x, y);
+
+        Record re = recordTable.get(name);
+                if(re!=null && !name.equals("pink")){
+                        reName.setLayoutX(900);//380);
+                        reName.setLayoutY(300);//200);
+                        reName.setText(name+": ");
+                        reName.setFill(Color.LAVENDER);
+                        reName.setFont(Font.font("Garamond",FontWeight.BOLD,24));
+                        
+                        highScore.setLayoutX(900);//380);
+                        highScore.setLayoutY(350);//200);
+                        highScore.setText("Highest Score: "+re.getHighScore());
+                        highScore.setFill(Color.LAVENDER);
+                        highScore.setFont(Font.font("Garamond",FontWeight.BOLD,24));
+                        
+                        lessGuesses.setLayoutX(900);//380);
+                        lessGuesses.setLayoutY(400);//200);
+                        lessGuesses.setText("Fewest Wrong Guesses: "+re.getWrong());
+                        lessGuesses.setFill(Color.LAVENDER);
+                        lessGuesses.setFont(Font.font("Garamond",FontWeight.BOLD,24));
+                        
+                        shortTime.setLayoutX(900);//380);
+                        shortTime.setLayoutY(450);//200);
+                        shortTime.setText("Fastest Game Time: "+re.getDuration());
+                        shortTime.setFill(Color.LAVENDER);
+                        shortTime.setFont(Font.font("Garamond",FontWeight.BOLD,24));
+                        
+                        shortTime.setVisible(true);
+                    lessGuesses.setVisible(true);
+                    highScore.setVisible(true);
+                    reName.setVisible(true);
+                    noRecord.setVisible(false);
+                } 
+                else if(name == null && re == null){
+                    noRecord.setVisible(true);
+                        noRecord.setLayoutX(900);//380);
+                        noRecord.setLayoutY(300);//200);
+                        noRecord.setText("Not playable.");
+                        noRecord.setFill(Color.LAVENDER);
+                        noRecord.setFont(Font.font("Garamond",FontWeight.BOLD,22));
+                        
+                    shortTime.setVisible(false);
+                    lessGuesses.setVisible(false);
+                    highScore.setVisible(false);
+                    reName.setVisible(false);
+            }else {
+                    shortTime.setVisible(false);
+                    lessGuesses.setVisible(false);
+                    highScore.setVisible(false);
+                    reName.setVisible(false);
+                    noRecord.setVisible(true);
+                        noRecord.setLayoutX(900);//380);
+                        noRecord.setLayoutY(300);//200);
+                        noRecord.setText("No game has been played yet.");
+                        noRecord.setFill(Color.LAVENDER);
+                        noRecord.setFont(Font.font("Garamond",FontWeight.BOLD,22));
+                }
     }
     
      public void addLabels(){
@@ -794,7 +890,7 @@ public class RegioVincoGame extends PointAndClickGame {
             if(data.won()){
                         time.setLayoutX(70);//380);
                         time.setLayoutY(220);//200);
-                        time.setText("Game Duration: "+dataModel.getSecondsAsTimeText(endTime/1000-dataModel.getStart()/1000));
+                        time.setText("Game Duration: "+dataModel.getSecondsAsTimeText(endTime/1000-start/1000));
                         time.setFill(Color.NAVY);
                         time.setFont(Font.font("BookAntiqua",FontWeight.BOLD,24));
                         
@@ -822,44 +918,17 @@ public class RegioVincoGame extends PointAndClickGame {
                         guesses.setFill(Color.NAVY);
                         guesses.setFont(Font.font("BookAntiqua",FontWeight.BOLD,24));
             } else{
-                Record re = recordTable.get(dataModel.getRegionName());
-                if(re!=null){
-                        subRegions.setLayoutX(900);//380);
-                        subRegions.setLayoutY(300);//200);
-                        subRegions.setText(dataModel.getRegionName()+": ");
-                        subRegions.setFill(Color.LAVENDER);
-                        subRegions.setFont(Font.font("Garamond",FontWeight.BOLD,24));
-                        
-                        score.setLayoutX(900);//380);
-                        score.setLayoutY(350);//200);
-                        score.setText("Highest Score: "+re.getHighScore());
-                        score.setFill(Color.LAVENDER);
-                        score.setFont(Font.font("Garamond",FontWeight.BOLD,24));
-                        
-                        guesses.setLayoutX(900);//380);
-                        guesses.setLayoutY(400);//200);
-                        guesses.setText("Fewest Wrong Guesses: "+re.getWrong());
-                        guesses.setFill(Color.LAVENDER);
-                        guesses.setFont(Font.font("Garamond",FontWeight.BOLD,24));
-                        
-                        time.setLayoutX(900);//380);
-                        time.setLayoutY(450);//200);
-                        time.setText("Fastest Game Time: "+re.getDuration());
-                        time.setFill(Color.LAVENDER);
-                        time.setFont(Font.font("Garamond",FontWeight.BOLD,24));
-                }
             }
-                     
-    }
+     }
    
-   public String score(){
+   public int score(){
        RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
         int score = 0;
-        score = 10000-(((int)(long)endTime/1000-(int)(long)dataModel.getStart()/1000));
+        score = 10000-(((int)(long)endTime/1000-(int)(long)start/1000));
         score = score-(100*dataModel.getWrong());
         if(score<0)
             score = 0;
-        return String.valueOf(score);
+        return (score);
     }
    
    public void block(boolean b){
@@ -960,7 +1029,7 @@ public class RegioVincoGame extends PointAndClickGame {
        }
    }
    
-   public void enterGame(){
+   public void enterGame() throws IOException{
        splashLayer.setVisible(false);
        backgroundLayer.setVisible(true);
        gameLayer.setVisible(true);
@@ -969,7 +1038,8 @@ public class RegioVincoGame extends PointAndClickGame {
        worldDataManager.setWorldImporterExporter(worldIO);
        reloadFile("The World");
        reloadMap("The World");
-       guiLayer.setVisible(true);      
+       guiLayer.setVisible(true);    
+            loadScore();
    }
 
    public boolean stop() throws UnsupportedAudioFileException{
@@ -995,26 +1065,31 @@ public class RegioVincoGame extends PointAndClickGame {
    public void checkHighScore(){
        RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
        String region = dataModel.getRegionName();
-       if(Integer.parseInt(score())>recordTable.get(region).getHighScore()){
-           int high = Integer.parseInt(score());
-           int wrong = dataModel.getWrong();
-           String duration = dataModel.getSecondsAsTimeText(endTime/1000-dataModel.getStart()/1000);
-           Record re = new Record(region,high,wrong,duration);
+       int high = score();
+            int wrong = dataModel.getWrong();
+            String duration = dataModel.getSecondsAsTimeText(endTime/1000-dataModel.getStart()/1000);
+            Record re = new Record(region,high,wrong,duration);
+       if(!recordTable.isEmpty() && recordTable.containsKey(region)){
+            int originScore = recordTable.get(region).getHighScore();
+            if(originScore != 0){
+                if(score()>recordTable.get(region).getHighScore()){
+                    recordTable.put(region, re);
+                }
+            }
+       } else{
            recordTable.put(region, re);
-       } else
-           return;    
+       }
    }
    
    public void loadScore() throws IOException{
        RegioVincoDataModel dataModel = (RegioVincoDataModel)data;
-       File recordFile = new File(GAME_RECORD_PATH);
+       File recordFile = new File(GAME_RECORD_PATH); 
        if(recordFile.exists()){
-           Scanner in = new Scanner(System.in);
-           in.useDelimiter("/");
+           Scanner in = new Scanner(recordFile);
            while(in.hasNext()){
                String name = in.nextLine();
-               int highScore = in.nextInt();
-               int guess = in.nextInt();
+               int highScore = Integer.parseInt(in.nextLine());
+               int guess = Integer.parseInt(in.nextLine());
                String duration = in.nextLine();
                Record re = new Record(name,highScore,guess,duration);
                recordTable.put(name, re);
@@ -1025,22 +1100,44 @@ public class RegioVincoGame extends PointAndClickGame {
    }
    
    public void saveFile() throws IOException {
-       FileOutputStream file = null;
+       FileWriter read = null;
+       BufferedWriter buff = null;
         try {
             File recordFile = new File(GAME_RECORD_PATH);
-            file = new FileOutputStream(recordFile);
-            ObjectOutputStream out = new ObjectOutputStream(file);
             recordFile.createNewFile();
-            out.writeObject(recordFile);
+            read = new FileWriter(recordFile.getAbsoluteFile());
+            buff = new BufferedWriter(read);
+            for(Record re: recordTable.values()){
+                if(re.getDuration()!=null){
+                    buff.write(re.getName(), 0, re.getName().length());
+                    buff.newLine();
+                    buff.write(Integer.toString(re.getHighScore()));
+                    buff.newLine();
+                    buff.write(Integer.toString(re.getWrong()));
+                    buff.newLine();
+                    buff.write(re.getDuration(), 0, re.getDuration().length());
+                    buff.newLine();
+                } else{
+                    System.out.println("didn't write at all.");
+                    continue;
+                }
+            }
+           // out.writeObject(recordFile);
         } catch (FileNotFoundException ex) {
             System.out.println("file not found in saveFile");
             Logger.getLogger(RegioVincoGame.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                file.close();
-            } catch (IOException ex) {
-                Logger.getLogger(RegioVincoGame.class.getName()).log(Level.SEVERE, null, ex);
+        } finally{
+            try{
+                buff.close();
+                read.close();
+            }catch(IOException exx){
+                System.out.println("ioexception in save.");
             }
         }
+   }
+   
+   public void exit() throws IOException{
+       System.out.println("exiting...");
+       saveFile();
    }
 }
